@@ -55,7 +55,7 @@ function App() {
     if (path.includes('clubs')) return 'clubs'
     if (path.includes('campus') || path.includes('facilities')) return 'campus'
     if (path.includes('profile')) return 'profile'
-    return 'home'
+    return 'home' // Default route is Dashboard/Home
   })
   const [selectedQuest, setSelectedQuest] = useState(null)
 
@@ -90,7 +90,8 @@ function App() {
         } else if (path.includes('profile')) {
           setStudentTab('profile')
           setSelectedQuest(null)
-        } else if (path.includes('home')) {
+        } else {
+          // Default fallback route is Dashboard/Home
           setStudentTab('home')
           setSelectedQuest(null)
         }
@@ -107,9 +108,10 @@ function App() {
 
   // Student Data
   const [student, setStudent] = useState(() => {
-    const saved = loadData()
     const activeSession = getAuthSession()
-    if (activeSession && saved && (saved.registrationNumber === activeSession.registrationNumber || saved.email === activeSession.email)) {
+    if (!activeSession) return null
+    const saved = loadData()
+    if (saved && (saved.registrationNumber === activeSession.registrationNumber || saved.email === activeSession.email)) {
       return {
         ...saved,
         studentName: activeSession.studentName || saved.studentName || 'AVINASH',
@@ -119,32 +121,13 @@ function App() {
         year: activeSession.year || saved.year || '2nd Year',
       }
     }
-    if (activeSession) {
-      return {
-        email: activeSession.email || 'avinash@srkrec.ac.in',
-        registrationNumber: activeSession.registrationNumber || '24B91A6101',
-        studentName: activeSession.studentName || activeSession.displayName || 'AVINASH',
-        mobileNumber: activeSession.mobileNumber || '',
-        branch: activeSession.branch || 'AI & ML',
-        year: activeSession.year || '2nd Year',
-        isVerified: true,
-        xp: 100,
-        completedQuests: [],
-        badges: [],
-        xpHistory: [],
-        questProgress: {},
-        achievements: [],
-        uploadedProofs: {},
-        reminders: [],
-      }
-    }
     return {
-      email: 'avinash@srkrec.ac.in',
-      registrationNumber: '24B91A6101',
-      studentName: 'AVINASH',
-      mobileNumber: '',
-      branch: 'AI & ML',
-      year: '2nd Year',
+      email: activeSession.email || 'avinash@srkrec.ac.in',
+      registrationNumber: activeSession.registrationNumber || '24B91A6101',
+      studentName: activeSession.studentName || activeSession.displayName || 'AVINASH',
+      mobileNumber: activeSession.mobileNumber || '',
+      branch: activeSession.branch || 'AI & ML',
+      year: activeSession.year || '2nd Year',
       isVerified: true,
       xp: 100,
       completedQuests: [],
@@ -195,7 +178,10 @@ function App() {
       setStudent(newStudent)
     }
     setStudentTab('home')
+    setSelectedQuest(null)
     setAuthSuccessNotice('')
+    window.location.hash = '#/home'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function handleRegistrationSuccess(message) {
@@ -284,7 +270,7 @@ function App() {
   // ==========================================
   // RENDER: STUDENT AUTH (REGISTER / LOGIN)
   // ==========================================
-  if (!studentSession && !student) {
+  if (!studentSession || !student) {
     if (studentAuthView === 'register') {
       return (
         <>
