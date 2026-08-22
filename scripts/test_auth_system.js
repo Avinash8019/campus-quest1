@@ -8,6 +8,7 @@ import {
   findStudentByRegdNo,
   updateStudentProgress,
   loadAllStudents,
+  getLeaderboardStudents,
 } from '../server/db.js'
 
 console.log('🧪 Starting CampusQuest Central Database & Multi-Student Account Verification...\n')
@@ -99,6 +100,27 @@ console.log('\n--- TEST GROUP 6: Password Security ---')
 assert(!reloadedA.password_hash.includes('Test@123'), 'Student A password is NOT stored in plain text')
 assert(reloadedA.password_hash.startsWith('pbkdf2$'), 'Student A password uses salted PBKDF2 hash')
 assert(newStudentLogin.student.password_hash === undefined, 'Sanitized student object does NOT expose password_hash to frontend')
+
+// 7. Test Real Central Database Leaderboard System
+console.log('\n--- TEST GROUP 7: Real Central Leaderboard Ranking ---')
+
+// Update Student C score to 1200 XP
+updateStudentProgress(studentC.id, { xp: 1200, completedQuests: [1, 2, 3, 4, 5, 6, 7, 8] })
+
+const leaderboard = getLeaderboardStudents()
+assert(Array.isArray(leaderboard) && leaderboard.length > 0, 'Central Leaderboard returns real registered student array')
+
+const studentCLeaderboard = leaderboard.find((s) => s.registrationNumber === 'TEST003')
+const studentALeaderboard = leaderboard.find((s) => s.registrationNumber === 'TEST001')
+const studentBLeaderboard = leaderboard.find((s) => s.registrationNumber === 'TEST002')
+
+assert(studentCLeaderboard && studentCLeaderboard.xp === 1200 && studentCLeaderboard.rank === 1, 'Student C with 1200 XP is ranked #1')
+assert(studentALeaderboard && studentALeaderboard.xp === 500 && studentALeaderboard.rank === 2, 'Student A with 500 XP is ranked #2')
+assert(studentBLeaderboard && studentBLeaderboard.xp === 300 && studentBLeaderboard.rank > studentALeaderboard.rank, 'Student B with 300 XP is ranked below Student A based on score')
+
+// Verify zero sensitive data is exposed in leaderboard
+assert(leaderboard.every((st) => st.password_hash === undefined), 'Zero password hashes exposed in leaderboard entries')
+assert(leaderboard.every((st) => !st.name.includes('Dummy') && !st.name.includes('Mock')), 'No dummy or mock students in leaderboard')
 
 console.log(`\n========================================`)
 console.log(`TEST SUMMARY: ${testsPassed} Passed, ${testsFailed} Failed`)

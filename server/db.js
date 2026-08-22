@@ -438,3 +438,62 @@ export function sanitizeStudent(student) {
     updatedAt: student.updated_at,
   }
 }
+
+/**
+ * Retrieves sorted, ranked student leaderboard from the central database.
+ * Strictly uses real registered accounts and real scores.
+ */
+export function getLeaderboardStudents() {
+  const students = loadAllStudents()
+
+  // Filter legitimate registered accounts and compute real scores
+  const formatted = students.map((s) => {
+    const xp = typeof s.xp === 'number' ? Math.max(0, s.xp) : 0
+    const completedQuests = Array.isArray(s.completed_quests) ? s.completed_quests : []
+    const badges = Array.isArray(s.badges) ? s.badges : []
+
+    return {
+      id: s.id,
+      name: s.name || 'SRKR Student',
+      studentName: s.name || 'SRKR Student',
+      registrationNumber: s.regd_no,
+      regd_no: s.regd_no,
+      branch: s.branch || 'AI & ML',
+      department: s.branch || 'AI & ML',
+      year: s.year || '1st Year',
+      xp,
+      score: xp,
+      completedQuests,
+      completedQuestsCount: completedQuests.length,
+      badges,
+      badgesCount: badges.length,
+      createdAt: s.created_at || new Date().toISOString(),
+    }
+  })
+
+  // Sort: 1. Highest XP, 2. Most completed quests, 3. Earliest registration
+  formatted.sort((a, b) => {
+    if (b.xp !== a.xp) {
+      return b.xp - a.xp
+    }
+    if (b.completedQuestsCount !== a.completedQuestsCount) {
+      return b.completedQuestsCount - a.completedQuestsCount
+    }
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  })
+
+  // Assign dense/competitive ranks
+  let currentRank = 1
+  return formatted.map((st, index) => {
+    if (index > 0) {
+      const prev = formatted[index - 1]
+      if (st.xp < prev.xp) {
+        currentRank = index + 1
+      }
+    }
+    return {
+      ...st,
+      rank: currentRank,
+    }
+  })
+}

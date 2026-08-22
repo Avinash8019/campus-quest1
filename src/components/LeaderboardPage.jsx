@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   DEPARTMENTS,
   YEARS,
   getAllLeaderboardStudents,
+  fetchCentralLeaderboard,
   rankStudents,
   getStudentRanks,
   normalizeDepartment,
@@ -13,20 +14,36 @@ function LeaderboardPage({ student }) {
   const [selectedDepartment, setSelectedDepartment] = useState('All Departments')
   const [selectedYear, setSelectedYear] = useState('All Years')
   const [searchQuery, setSearchQuery] = useState('')
+  const [centralStudents, setCentralStudents] = useState(() => getAllLeaderboardStudents(student))
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // 1. Fetch live merged students cohort (incorporating current student's true XP)
-  const allStudents = useMemo(() => {
-    return getAllLeaderboardStudents(student)
+  // 1. Fetch live central database students cohort
+  useEffect(() => {
+    let isMounted = true
+    setIsRefreshing(true)
+    fetchCentralLeaderboard(student)
+      .then((data) => {
+        if (isMounted && Array.isArray(data)) {
+          setCentralStudents(data)
+        }
+      })
+      .finally(() => {
+        if (isMounted) setIsRefreshing(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
   }, [student])
 
   // 2. Dynamic rank calculations for the current student
   const myRanks = useMemo(() => {
-    return getStudentRanks(student)
-  }, [student])
+    return getStudentRanks(student, centralStudents)
+  }, [student, centralStudents])
 
   // 3. Filter students based on active tab and selected filters
   const filteredStudents = useMemo(() => {
-    return allStudents.filter((st) => {
+    return centralStudents.filter((st) => {
       // Department Filter
       const deptTarget = activeTab === 'departments' && selectedDepartment === 'All Departments'
         ? (myRanks.department || 'AI & ML')
@@ -52,7 +69,7 @@ function LeaderboardPage({ student }) {
 
       return matchDept && matchYear && matchSearch
     })
-  }, [allStudents, activeTab, selectedDepartment, selectedYear, searchQuery, myRanks.department])
+  }, [centralStudents, activeTab, selectedDepartment, selectedYear, searchQuery, myRanks.department])
 
   // 4. Sort and apply standard competitive ranking with tie-handling
   const rankedList = useMemo(() => {
@@ -199,9 +216,9 @@ function LeaderboardPage({ student }) {
       {/* 4. LEADERBOARD CONTENT */}
       {rankedList.length === 0 ? (
         <div className="clean-card empty-leaderboard-card">
-          <span className="empty-sticker">🏛️</span>
-          <h3>No students have joined this department yet.</h3>
-          <p>Be the first student from this department to explore SRKR and claim the #1 rank!</p>
+          <span className="empty-sticker">🏆</span>
+          <h3>No students on the leaderboard yet.</h3>
+          <p>Complete campus quests to earn XP and claim the #1 rank on the podium!</p>
         </div>
       ) : (
         <>

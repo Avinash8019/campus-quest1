@@ -15,6 +15,7 @@ import {
   updateStudentProgress,
   loadAllStudents,
   sanitizeStudent,
+  getLeaderboardStudents,
 } from './server/db.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -201,6 +202,24 @@ app.post('/api/auth/logout', (req, res) => {
     activeSessions.delete(token)
   }
   return res.status(200).json({ success: true, message: 'Logged out successfully.' })
+})
+
+/**
+ * GET /api/leaderboard
+ * Returns real, sorted student leaderboard from the central database.
+ */
+app.get('/api/leaderboard', (req, res) => {
+  try {
+    const leaderboard = getLeaderboardStudents()
+    return res.status(200).json({
+      success: true,
+      total: leaderboard.length,
+      leaderboard,
+    })
+  } catch (err) {
+    console.error('Leaderboard error:', err)
+    return res.status(500).json({ success: false, error: 'Failed to retrieve leaderboard from database.' })
+  }
 })
 
 /**
