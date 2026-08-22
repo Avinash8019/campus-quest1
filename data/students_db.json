@@ -37,7 +37,7 @@
     "uploaded_proofs": {},
     "reminders": [],
     "created_at": "2026-08-22T23:23:10.228Z",
-    "updated_at": "2026-08-22T23:23:11.250Z"
+    "updated_at": "2026-08-22T23:35:18.709Z"
   },
   {
     "id": "student_test_002",
@@ -175,5 +175,62 @@
     "reminders": [],
     "created_at": "2026-08-22T23:23:11.054Z",
     "updated_at": "2026-08-22T23:23:11.054Z"
+  },
+  {
+    "id": "student_1787441264158_d3c9c28b",
+    "regd_no": "24B91A7291",
+    "name": "New Independent Student",
+    "email": "student_1787441264157@srkrec.ac.in",
+    "branch": "AI & ML",
+    "year": "1st Year",
+    "password_hash": "pbkdf2$100000$d2a69684c8955a1a64728e5c021c939a$7802cdde9b4011e621947f7f9da81dd42b93649107e43f10f259b06afb5d4c9b061346b9f4b2f24665c9d2d14d4b3dd70919995b93a271647d1d01db078a5160",
+    "xp": 100,
+    "completed_quests": [],
+    "badges": [],
+    "xp_history": [],
+    "quest_progress": {},
+    "achievements": [],
+    "uploaded_proofs": {},
+    "reminders": [],
+    "created_at": "2026-08-22T23:27:44.158Z",
+    "updated_at": "2026-08-22T23:27:44.158Z"
+  },
+  {
+    "id": "student_1787441691560_a6b73321",
+    "regd_no": "24B91A2135",
+    "name": "New Independent Student",
+    "email": "student_1787441691559@srkrec.ac.in",
+    "branch": "AI & ML",
+    "year": "1st Year",
+    "password_hash": "pbkdf2$100000$3a3725ddc19c685af0eff2a4fea42768$b912b6d76e0366e7f27e43ce3dec429c836029aa78bea9a828b29d2be78e38c726a6db186de47335c72d3206e2c381f56a78520100fd74891d1b75b24202cfff",
+    "xp": 100,
+    "completed_quests": [],
+    "badges": [],
+    "xp_history": [],
+    "quest_progress": {},
+    "achievements": [],
+    "uploaded_proofs": {},
+    "reminders": [],
+    "created_at": "2026-08-22T23:34:51.560Z",
+    "updated_at": "2026-08-22T23:34:51.560Z"
+  },
+  {
+    "id": "student_1787441718513_dcb32270",
+    "regd_no": "24B91A9443",
+    "name": "New Independent Student",
+    "email": "student_1787441718513@srkrec.ac.in",
+    "branch": "AI & ML",
+    "year": "1st Year",
+    "password_hash": "pbkdf2$100000$e0c81718aaab9406765b85298949dc4c$5d3abcf82da9bd5dc441dbad5cb180b9c140ad83da57742b5ca5a00b98c5dcac2c2b61b992db618f6ee8fcfae123250cf9fa39f1d48d7a79b7851ed256142c46",
+    "xp": 100,
+    "completed_quests": [],
+    "badges": [],
+    "xp_history": [],
+    "quest_progress": {},
+    "achievements": [],
+    "uploaded_proofs": {},
+    "reminders": [],
+    "created_at": "2026-08-22T23:35:18.513Z",
+    "updated_at": "2026-08-22T23:35:18.513Z"
   }
 ]
