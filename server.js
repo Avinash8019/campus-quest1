@@ -234,7 +234,7 @@ app.use(
 )
 
 // SPA Rewrite: Any non-API route returns dist/index.html
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(DIST_DIR, 'index.html'))
 })
 
