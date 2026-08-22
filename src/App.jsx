@@ -15,7 +15,7 @@ import AdminLoginPage from './components/AdminLoginPage.jsx'
 import AdminDashboard from './components/AdminDashboard.jsx'
 import AnimatedGameBackground from './components/AnimatedGameBackground.jsx'
 import { loadData, saveData, saveLastNotifiedLevel } from './utils/storage.js'
-import { getAuthSession, clearAuthSession } from './utils/authService.js'
+import { getAuthSession, clearAuthSession, syncStudentProgressToCentralDb } from './utils/authService.js'
 import { getAdminSession, logoutAdmin } from './utils/adminAuthService.js'
 import { getPlayerLevel } from './utils/gameLevels.js'
 
@@ -192,12 +192,14 @@ function App() {
   function handleStudentUpdate(updatedStudent) {
     saveData(updatedStudent)
     setStudent(updatedStudent)
+    syncStudentProgressToCentralDb(updatedStudent)
   }
 
   function handleUpdateReminders(updatedReminders) {
     const updated = { ...student, reminders: updatedReminders }
     saveData(updated)
     setStudent(updated)
+    syncStudentProgressToCentralDb(updated)
   }
 
   function handleResetStudentProgress() {
@@ -216,6 +218,7 @@ function App() {
     saveData(resetStudent)
     saveLastNotifiedLevel(1)
     setStudent(resetStudent)
+    syncStudentProgressToCentralDb(resetStudent)
     setStudentTab('home')
   }
 

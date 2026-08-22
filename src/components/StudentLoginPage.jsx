@@ -7,7 +7,7 @@ function StudentLoginPage({ onLoginSuccess, onGoToRegister, onSwitchToAdmin, suc
   const [showPassword, setShowPassword] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setErrorMessage('')
 
@@ -19,13 +19,17 @@ function StudentLoginPage({ onLoginSuccess, onGoToRegister, onSwitchToAdmin, suc
       return
     }
 
-    const result = loginStudent(cleanRegNo, cleanPassword)
-    if (!result.success) {
-      setErrorMessage('Invalid registration number or password.')
-      return
-    }
+    try {
+      const result = await loginStudent(cleanRegNo, cleanPassword)
+      if (!result.success) {
+        setErrorMessage(result.error || 'Invalid Registration Number or password.')
+        return
+      }
 
-    onLoginSuccess(result.user)
+      onLoginSuccess(result.user)
+    } catch {
+      setErrorMessage('Unable to connect to server. Please try again.')
+    }
   }
 
   return (

@@ -44,25 +44,29 @@ function StudentRegisterPage({ onGoToLogin, onRegistrationSuccess }) {
     setIsDuplicate(false)
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setErrorMessage('')
     setIsDuplicate(false)
 
-    const result = registerStudent(formData)
-    if (!result.success) {
-      setErrorMessage(result.error)
-      if (result.isDuplicate) {
-        setIsDuplicate(true)
+    try {
+      const result = await registerStudent(formData)
+      if (!result.success) {
+        setErrorMessage(result.error)
+        if (result.isDuplicate) {
+          setIsDuplicate(true)
+        }
+        return
       }
-      return
-    }
 
-    // Success
-    setSuccessBanner('✓ Account Created! Welcome to CampusQuest.')
-    setTimeout(() => {
-      onRegistrationSuccess(result.message)
-    }, 1200)
+      // Success
+      setSuccessBanner('✓ Account Created! Welcome to CampusQuest.')
+      setTimeout(() => {
+        onRegistrationSuccess(result.message)
+      }, 1200)
+    } catch {
+      setErrorMessage('Unable to connect to server. Please try again.')
+    }
   }
 
   return (
