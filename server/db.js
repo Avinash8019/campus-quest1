@@ -69,138 +69,12 @@ export function verifyPassword(plainPassword, storedHash) {
   return crypto.timingSafeEqual(Buffer.from(actualHash, 'hex'), Buffer.from(expectedHash, 'hex'))
 }
 
-// Initial pre-seeded student accounts for multi-device testing and demo
-const INITIAL_STUDENTS = [
-  {
-    id: 'student_test_001',
-    regd_no: 'TEST001',
-    name: 'Student A',
-    email: 'test001@srkrec.ac.in',
-    branch: 'CSE',
-    year: '2nd Year',
-    password_hash: hashPassword('Test@123'),
-    xp: 150,
-    completed_quests: [1],
-    badges: ['🚀 Campus Explorer'],
-    xp_history: [{ id: 1, title: 'Main Campus Gate Quest', xp: 150, date: new Date().toISOString() }],
-    quest_progress: { 1: { step: 4, isQrVerified: true, isLocationSolved: true, isQuestionAnswered: true, isPhotoUploaded: true } },
-    achievements: [],
-    uploaded_proofs: {},
-    reminders: [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'student_test_002',
-    regd_no: 'TEST002',
-    name: 'Student B',
-    email: 'test002@srkrec.ac.in',
-    branch: 'AI & ML',
-    year: '3rd Year',
-    password_hash: hashPassword('Test@456'),
-    xp: 300,
-    completed_quests: [1, 2],
-    badges: ['🚀 Campus Explorer', '💻 Lab Master'],
-    xp_history: [
-      { id: 1, title: 'Main Campus Gate Quest', xp: 150, date: new Date().toISOString() },
-      { id: 2, title: 'AI & Coding Hub Exploration', xp: 150, date: new Date().toISOString() },
-    ],
-    quest_progress: {
-      1: { step: 4, isQrVerified: true, isLocationSolved: true, isQuestionAnswered: true, isPhotoUploaded: true },
-      2: { step: 4, isQrVerified: true, isLocationSolved: true, isQuestionAnswered: true, isPhotoUploaded: true },
-    },
-    achievements: [],
-    uploaded_proofs: {},
-    reminders: [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'student_test_003',
-    regd_no: 'TEST003',
-    name: 'Student C',
-    email: 'test003@srkrec.ac.in',
-    branch: 'ECE',
-    year: '1st Year',
-    password_hash: hashPassword('Test@789'),
-    xp: 850,
-    completed_quests: [1, 2, 3, 4, 5],
-    badges: ['🚀 Campus Explorer', '💻 Lab Master', '📚 Library Scholar'],
-    xp_history: [
-      { id: 1, title: 'Main Campus Gate Quest', xp: 150, date: new Date().toISOString() },
-      { id: 2, title: 'AI & Coding Hub Exploration', xp: 150, date: new Date().toISOString() },
-      { id: 3, title: 'Central Library Challenge', xp: 200, date: new Date().toISOString() },
-      { id: 4, title: 'Mechanical Workshop Visit', xp: 150, date: new Date().toISOString() },
-      { id: 5, title: 'ECE Electronics Lab Quest', xp: 200, date: new Date().toISOString() },
-    ],
-    quest_progress: {},
-    achievements: [],
-    uploaded_proofs: {},
-    reminders: [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'student_test_004',
-    regd_no: 'TEST004',
-    name: 'Student D',
-    email: 'test004@srkrec.ac.in',
-    branch: 'EEE',
-    year: '1st Year',
-    password_hash: hashPassword('Test@000'),
-    xp: 0,
-    completed_quests: [],
-    badges: [],
-    xp_history: [],
-    quest_progress: {},
-    achievements: [],
-    uploaded_proofs: {},
-    reminders: [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'student_srkr_01',
-    regd_no: '24B91A6101',
-    name: 'Karthik Varma',
-    email: 'karthik.v@srkrec.ac.in',
-    branch: 'CSE',
-    year: '3rd Year',
-    password_hash: hashPassword('Password123'),
-    xp: 450,
-    completed_quests: [1, 2, 3],
-    badges: ['🚀 Campus Explorer', '💻 Lab Master', '📚 Library Scholar'],
-    xp_history: [],
-    quest_progress: {},
-    achievements: [],
-    uploaded_proofs: {},
-    reminders: [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'student_srkr_02',
-    regd_no: '25B91A6101',
-    name: 'SRKR Student',
-    email: 'student@srkrec.ac.in',
-    branch: 'AI & ML',
-    year: '1st Year',
-    password_hash: hashPassword('Password123'),
-    xp: 0,
-    completed_quests: [],
-    badges: [],
-    xp_history: [],
-    quest_progress: {},
-    achievements: [],
-    uploaded_proofs: {},
-    reminders: [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-]
+// Initial student repository (strictly real registrations only, zero fake students)
+const INITIAL_STUDENTS = []
 
 /**
  * Loads all student records from persistent file database.
+ * Automatically purges any legacy dummy / placeholder accounts.
  */
 export function loadAllStudents() {
   try {
@@ -210,27 +84,35 @@ export function loadAllStudents() {
     }
     const raw = fs.readFileSync(DB_FILE, 'utf-8')
     const parsed = JSON.parse(raw)
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      // Ensure pre-seeded test accounts exist for testing
-      const regNos = new Set(parsed.map((s) => (s.regd_no || '').toUpperCase()))
-      let modified = false
-      for (const initial of INITIAL_STUDENTS) {
-        if (!regNos.has(initial.regd_no.toUpperCase())) {
-          parsed.push(initial)
-          modified = true
-        }
+    if (Array.isArray(parsed)) {
+      // Filter out any legacy dummy/placeholder entries
+      const realStudents = parsed.filter((s) => {
+        const name = (s.name || '').toLowerCase()
+        const regNo = (s.regd_no || '').toUpperCase()
+        const isDummy =
+          name === 'student a' ||
+          name === 'student b' ||
+          name === 'student c' ||
+          name === 'student d' ||
+          name === 'student d unplayed' ||
+          name.includes('fake admin') ||
+          name.includes('duplicate student') ||
+          regNo === 'TEST001' ||
+          regNo === 'TEST002' ||
+          regNo === 'TEST003' ||
+          regNo === 'TEST004' ||
+          regNo === 'TEST004_TEST'
+        return !isDummy
+      })
+      if (realStudents.length !== parsed.length) {
+        saveAllStudents(realStudents)
       }
-      if (modified) {
-        saveAllStudents(parsed)
-      }
-      return parsed
+      return realStudents
     }
-    saveAllStudents(INITIAL_STUDENTS)
-    return INITIAL_STUDENTS
+    return []
   } catch (err) {
-    console.error('Error loading database, initializing defaults:', err)
-    saveAllStudents(INITIAL_STUDENTS)
-    return INITIAL_STUDENTS
+    console.error('Error loading database:', err)
+    return []
   }
 }
 
@@ -468,43 +350,48 @@ export function sanitizeStudent(student) {
  * Retrieves sorted, ranked student leaderboard from the central database.
  * Strictly uses real registered accounts who have ACTUALLY PLAYED and earned game XP.
  * Registered but never played students are excluded.
+ * Uses unique student ID to prevent any duplicate rows.
  */
 export function getLeaderboardStudents() {
   const students = loadAllStudents()
 
-  // Strict backend filter: ONLY students who have actually played (completedQuests > 0 OR XP > 0)
-  const activePlayers = students.filter((s) => {
+  // 1. Group / aggregate by unique student ID to strictly prevent any duplicate rows
+  const studentMap = new Map()
+
+  students.forEach((s) => {
+    const uniqueId = (s.id || s.regd_no || '').trim()
+    if (!uniqueId) return
+
     const xp = typeof s.xp === 'number' ? s.xp : 0
     const completedQuests = Array.isArray(s.completed_quests) ? s.completed_quests : []
-    return xp > 0 || completedQuests.length > 0
-  })
 
-  // Format real player records
-  const formatted = activePlayers.map((s) => {
-    const xp = typeof s.xp === 'number' ? Math.max(0, s.xp) : 0
-    const completedQuests = Array.isArray(s.completed_quests) ? s.completed_quests : []
-    const badges = Array.isArray(s.badges) ? s.badges : []
-
-    return {
-      id: s.id,
-      name: s.name || 'SRKR Student',
-      studentName: s.name || 'SRKR Student',
-      registrationNumber: s.regd_no,
-      regd_no: s.regd_no,
-      branch: s.branch || 'AI & ML',
-      department: s.branch || 'AI & ML',
-      year: s.year || '1st Year',
-      xp,
-      score: xp,
-      completedQuests,
-      completedQuestsCount: completedQuests.length,
-      badges,
-      badgesCount: badges.length,
-      createdAt: s.created_at || new Date().toISOString(),
+    // Strict rule: ONLY students who have ACTUALLY PLAYED (completed quests > 0 OR XP > 0)
+    if (xp > 0 || completedQuests.length > 0) {
+      if (!studentMap.has(uniqueId)) {
+        studentMap.set(uniqueId, {
+          id: s.id || uniqueId,
+          name: s.name || s.studentName || s.regd_no,
+          studentName: s.name || s.studentName || s.regd_no,
+          registrationNumber: s.regd_no,
+          regd_no: s.regd_no,
+          branch: s.branch || 'AI & ML',
+          department: s.branch || 'AI & ML',
+          year: s.year || '1st Year',
+          xp,
+          score: xp,
+          completedQuests,
+          completedQuestsCount: completedQuests.length,
+          badges: Array.isArray(s.badges) ? s.badges : [],
+          badgesCount: Array.isArray(s.badges) ? s.badges.length : 0,
+          createdAt: s.created_at || new Date().toISOString(),
+        })
+      }
     }
   })
 
-  // Sort: 1. Highest XP, 2. Most completed quests, 3. Earliest registration
+  const formatted = Array.from(studentMap.values())
+
+  // 2. Sort: 1. Highest XP, 2. Most completed quests, 3. Earliest registration
   formatted.sort((a, b) => {
     if (b.xp !== a.xp) {
       return b.xp - a.xp
@@ -515,7 +402,7 @@ export function getLeaderboardStudents() {
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   })
 
-  // Assign dense/competitive ranks
+  // 3. Assign dense/competitive ranks
   let currentRank = 1
   return formatted.map((st, index) => {
     if (index > 0) {

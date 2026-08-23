@@ -1,126 +1,5 @@
 [
   {
-    "id": "student_test_001",
-    "regd_no": "TEST001",
-    "name": "Student A",
-    "email": "test001@srkrec.ac.in",
-    "branch": "CSE",
-    "year": "2nd Year",
-    "password_hash": "pbkdf2$100000$69d20fc925b417931891fc6f9325afe7$9ccadeae2afc05561930899690720ce8200c7d60d0fae1b3fdeb55d898ff159ab85b8cc67e1dc1d466319cca4a314851664e8794db07c6c3b988e5a0bfe4d561",
-    "xp": 500,
-    "completed_quests": [
-      1,
-      2,
-      3
-    ],
-    "badges": [
-      "🚀 Campus Explorer"
-    ],
-    "xp_history": [
-      {
-        "id": 1,
-        "title": "Main Campus Gate Quest",
-        "xp": 150,
-        "date": "2026-08-22T23:23:10.228Z"
-      }
-    ],
-    "quest_progress": {
-      "1": {
-        "step": 4,
-        "isQrVerified": true,
-        "isLocationSolved": true,
-        "isQuestionAnswered": true,
-        "isPhotoUploaded": true
-      }
-    },
-    "achievements": [],
-    "uploaded_proofs": {},
-    "reminders": [],
-    "created_at": "2026-08-22T23:23:10.228Z",
-    "updated_at": "2026-08-23T00:13:18.356Z"
-  },
-  {
-    "id": "student_test_002",
-    "regd_no": "TEST002",
-    "name": "Student B",
-    "email": "test002@srkrec.ac.in",
-    "branch": "AI & ML",
-    "year": "3rd Year",
-    "password_hash": "pbkdf2$100000$332eabd76100cc55562c6598e20197de$b6d07a18043797a3a3f058ea973115c4126d130f03331b148d2ba3e559cce130b927de48a51bccfc968ab04d5a6f9f9c18812cbc661f7226b5a4a55762cbfb8b",
-    "xp": 300,
-    "completed_quests": [
-      1,
-      2
-    ],
-    "badges": [
-      "🚀 Campus Explorer",
-      "💻 Lab Master"
-    ],
-    "xp_history": [
-      {
-        "id": 1,
-        "title": "Main Campus Gate Quest",
-        "xp": 150,
-        "date": "2026-08-22T23:23:10.332Z"
-      },
-      {
-        "id": 2,
-        "title": "AI & Coding Hub Exploration",
-        "xp": 150,
-        "date": "2026-08-22T23:23:10.332Z"
-      }
-    ],
-    "quest_progress": {
-      "1": {
-        "step": 4,
-        "isQrVerified": true,
-        "isLocationSolved": true,
-        "isQuestionAnswered": true,
-        "isPhotoUploaded": true
-      },
-      "2": {
-        "step": 4,
-        "isQrVerified": true,
-        "isLocationSolved": true,
-        "isQuestionAnswered": true,
-        "isPhotoUploaded": true
-      }
-    },
-    "achievements": [],
-    "uploaded_proofs": {},
-    "reminders": [],
-    "created_at": "2026-08-22T23:23:10.332Z",
-    "updated_at": "2026-08-22T23:23:10.332Z"
-  },
-  {
-    "id": "student_test_003",
-    "regd_no": "TEST003",
-    "name": "Student C",
-    "email": "test003@srkrec.ac.in",
-    "branch": "ECE",
-    "year": "1st Year",
-    "password_hash": "pbkdf2$100000$ebfcba0f6444cacdf93d3b3c911a6839$457c5ec66023fb6a09ada57d8d931a2375a934e9fb7f05ec3b63f0966ede17e5a05fc18e565da3f303210523a081e1b409ff13876349d19fea7d7f3cc28cace8",
-    "xp": 1200,
-    "completed_quests": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8
-    ],
-    "badges": [],
-    "xp_history": [],
-    "quest_progress": {},
-    "achievements": [],
-    "uploaded_proofs": {},
-    "reminders": [],
-    "created_at": "2026-08-22T23:23:10.428Z",
-    "updated_at": "2026-08-23T00:13:18.362Z"
-  },
-  {
     "id": "student_srkr_01",
     "regd_no": "24B91A6101",
     "name": "Karthik Varma",
@@ -300,44 +179,6 @@
     "updated_at": "2026-08-23T00:03:07.762Z"
   },
   {
-    "id": "student_1787443388203_3ffc3b23",
-    "regd_no": "24B91A9999",
-    "name": "Fake Admin Student",
-    "email": "admin.campus@srkrec.ac.in",
-    "branch": "CSE",
-    "year": "1st Year",
-    "password_hash": "pbkdf2$100000$c9613c3fab6887cdc338760ec3285471$86e0cc012f3bdf41117549a6a17a018044d3c8b014b48a28b9afaac51563e0a66f838790ddfaba8f106834cd6676c6a8c9fcaa1ae3a25a7d1824bcf3af8aa3c3",
-    "xp": 100,
-    "completed_quests": [],
-    "badges": [],
-    "xp_history": [],
-    "quest_progress": {},
-    "achievements": [],
-    "uploaded_proofs": {},
-    "reminders": [],
-    "created_at": "2026-08-23T00:03:08.203Z",
-    "updated_at": "2026-08-23T00:03:08.203Z"
-  },
-  {
-    "id": "student_test_004",
-    "regd_no": "TEST004",
-    "name": "Student D",
-    "email": "test004@srkrec.ac.in",
-    "branch": "EEE",
-    "year": "1st Year",
-    "password_hash": "pbkdf2$100000$e3a328ce865a609cdcceed09757802bb$69837a133b45377aa53531ead432c7eb2932a59461cd79016f237c41898d579900f22d47dc949c51c64944cfc15eceed2f9844540524de436e1ddd0e06f9e5fe",
-    "xp": 0,
-    "completed_quests": [],
-    "badges": [],
-    "xp_history": [],
-    "quest_progress": {},
-    "achievements": [],
-    "uploaded_proofs": {},
-    "reminders": [],
-    "created_at": "2026-08-23T00:13:17.448Z",
-    "updated_at": "2026-08-23T00:13:17.448Z"
-  },
-  {
     "id": "student_1787443998162_e172a962",
     "regd_no": "24B91A3124",
     "name": "New Independent Student",
@@ -357,24 +198,127 @@
     "updated_at": "2026-08-23T00:13:18.162Z"
   },
   {
-    "id": "student_1787443998667_f6238de7",
-    "regd_no": "TEST004_TEST",
-    "name": "Student D Unplayed",
-    "email": "student_d_test@srkrec.ac.in",
-    "branch": "EEE",
+    "id": "student_1787444540655_142e6161",
+    "regd_no": "24B91A7268",
+    "name": "Priya Sharma",
+    "email": "priya_1787444540651@srkrec.ac.in",
+    "branch": "CSE",
+    "year": "2nd Year",
+    "password_hash": "pbkdf2$100000$8ba5ff77c12fe3467e796d04403edd77$18849ce9fc82d1646bd8464af155f7edd544b83b889c52b0b8d1f97d724bc567b90e05458e25986191d4cebe698d5631b239e04f67289313a6553d4208b2523f",
+    "xp": 350,
+    "completed_quests": [
+      1,
+      2
+    ],
+    "badges": [],
+    "xp_history": [
+      {
+        "id": 1,
+        "title": "Main Gate Quest",
+        "xp": 150
+      },
+      {
+        "id": 2,
+        "title": "Central Library Challenge",
+        "xp": 200
+      }
+    ],
+    "quest_progress": {},
+    "achievements": [],
+    "uploaded_proofs": {},
+    "reminders": [],
+    "created_at": "2026-08-23T00:22:20.654Z",
+    "updated_at": "2026-08-23T00:22:21.253Z"
+  },
+  {
+    "id": "student_1787444540757_147d9253",
+    "regd_no": "23B91A2669",
+    "name": "Arjun Raju",
+    "email": "arjun_1787444540651@srkrec.ac.in",
+    "branch": "ECE",
+    "year": "3rd Year",
+    "password_hash": "pbkdf2$100000$dbe55851b2d6535b9bfeef3fa1e8cbba$b90fdbdd60df8baf8dee6fcb91eefbbbf0ec92563d6338eb3f1c5dcf7f2e282d26943b17df5852eaf4bf09759f39200e25ff6df735e41ce10ee4b26a9107f366",
+    "xp": 750,
+    "completed_quests": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "badges": [],
+    "xp_history": [
+      {
+        "id": 1,
+        "title": "Main Gate Quest",
+        "xp": 150
+      },
+      {
+        "id": 2,
+        "title": "Central Library Challenge",
+        "xp": 200
+      },
+      {
+        "id": 3,
+        "title": "AI & Coding Hub Exploration",
+        "xp": 200
+      },
+      {
+        "id": 4,
+        "title": "Mechanical Workshop Visit",
+        "xp": 200
+      }
+    ],
+    "quest_progress": {},
+    "achievements": [],
+    "uploaded_proofs": {},
+    "reminders": [],
+    "created_at": "2026-08-23T00:22:20.757Z",
+    "updated_at": "2026-08-23T00:22:21.255Z"
+  },
+  {
+    "id": "student_1787444540858_d411f269",
+    "regd_no": "25B91A2253",
+    "name": "Kavya Sree",
+    "email": "kavya_1787444540651@srkrec.ac.in",
+    "branch": "AI & ML",
     "year": "1st Year",
-    "password_hash": "pbkdf2$100000$77744e0438d95a175b8b7ee34f068535$66fa1b28592b59c8ccea6009c3cdfab4a5710cdf70ce74fa55d50fd04e41798e5c5ad12a7f0304a31f39a113f39a89f2d2101380d621317c7186c341e0c359ff",
+    "password_hash": "pbkdf2$100000$ab50ea33cff16cb29f441fbaf6d42fd2$06cf3dc26bf7b629d2687bf9e0a053eafff586e69f72017f240f9c7802ac906e022451d37df61fd77af191451e477188baf3de9538aa05f888637bd642b58207",
     "xp": 150,
     "completed_quests": [
       1
     ],
+    "badges": [],
+    "xp_history": [
+      {
+        "id": 1,
+        "title": "Main Gate Quest",
+        "xp": 150
+      }
+    ],
+    "quest_progress": {},
+    "achievements": [],
+    "uploaded_proofs": {},
+    "reminders": [],
+    "created_at": "2026-08-23T00:22:20.858Z",
+    "updated_at": "2026-08-23T00:22:21.258Z"
+  },
+  {
+    "id": "student_1787444540957_f959aa30",
+    "regd_no": "24B91A1776",
+    "name": "Rahul Kumar",
+    "email": "rahul_1787444540651@srkrec.ac.in",
+    "branch": "Mechanical",
+    "year": "2nd Year",
+    "password_hash": "pbkdf2$100000$6f7e81f47ea737d9924af762f2f9aedf$0d18f835dc46b25418e001a04047d03cf1a332e6573ed8b27aff3225336c6bbfb2b9e221199698272d1c8c24ccc31e99fd4eca66b568f58ede10a6716ecbeedc",
+    "xp": 0,
+    "completed_quests": [],
     "badges": [],
     "xp_history": [],
     "quest_progress": {},
     "achievements": [],
     "uploaded_proofs": {},
     "reminders": [],
-    "created_at": "2026-08-23T00:13:18.667Z",
-    "updated_at": "2026-08-23T00:13:18.801Z"
+    "created_at": "2026-08-23T00:22:20.957Z",
+    "updated_at": "2026-08-23T00:22:20.957Z"
   }
 ]

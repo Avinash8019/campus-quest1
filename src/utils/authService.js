@@ -42,92 +42,19 @@ export function hashPassword(plainText) {
   return `h_${Math.abs(hash).toString(36)}_${plainText.length}`
 }
 
-// Seed test accounts for offline/initial state
-const INITIAL_DEMO_STUDENTS = [
-  {
-    id: 'student_test_001',
-    name: 'Student A',
-    registrationNumber: 'TEST001',
-    email: 'test001@srkrec.ac.in',
-    branch: 'CSE',
-    year: '2nd Year',
-    passwordHash: hashPassword('Test@123'),
-    xp: 150,
-    completedQuests: [1],
-    badges: ['🚀 Campus Explorer'],
-    questProgress: { 1: { step: 4, isQrVerified: true, isLocationSolved: true, isQuestionAnswered: true, isPhotoUploaded: true } },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'student_test_002',
-    name: 'Student B',
-    registrationNumber: 'TEST002',
-    email: 'test002@srkrec.ac.in',
-    branch: 'AI & ML',
-    year: '3rd Year',
-    passwordHash: hashPassword('Test@456'),
-    xp: 300,
-    completedQuests: [1, 2],
-    badges: ['🚀 Campus Explorer', '💻 Lab Master'],
-    questProgress: {
-      1: { step: 4, isQrVerified: true, isLocationSolved: true, isQuestionAnswered: true, isPhotoUploaded: true },
-      2: { step: 4, isQrVerified: true, isLocationSolved: true, isQuestionAnswered: true, isPhotoUploaded: true },
-    },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'student_test_003',
-    name: 'Student C',
-    registrationNumber: 'TEST003',
-    email: 'test003@srkrec.ac.in',
-    branch: 'ECE',
-    year: '1st Year',
-    passwordHash: hashPassword('Test@789'),
-    xp: 100,
-    completedQuests: [],
-    badges: [],
-    questProgress: {},
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'student_srkr_01',
-    name: 'Karthik Varma',
-    registrationNumber: '24B91A6101',
-    email: 'karthik.v@srkrec.ac.in',
-    branch: 'CSE',
-    year: '3rd Year',
-    passwordHash: hashPassword('Password123'),
-    xp: 450,
-    completedQuests: [1, 2, 3],
-    badges: ['🚀 Campus Explorer', '💻 Lab Master', '📚 Library Scholar'],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'student_srkr_02',
-    name: 'SRKR Student',
-    registrationNumber: '25B91A6101',
-    email: 'student@srkrec.ac.in',
-    branch: 'AI & ML',
-    year: '1st Year',
-    passwordHash: hashPassword('Password123'),
-    xp: 100,
-    completedQuests: [],
-    badges: [],
-    createdAt: new Date().toISOString(),
-  },
-]
+// Initial registered students container (strictly real registrations only)
+const INITIAL_DEMO_STUDENTS = []
 
 export function getRegisteredStudents() {
   try {
     const raw = localStorage.getItem(REGISTERED_STUDENTS_KEY)
     if (!raw) {
-      localStorage.setItem(REGISTERED_STUDENTS_KEY, JSON.stringify(INITIAL_DEMO_STUDENTS))
-      return INITIAL_DEMO_STUDENTS
+      return []
     }
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : INITIAL_DEMO_STUDENTS
+    return Array.isArray(parsed) ? parsed : []
   } catch {
-    return INITIAL_DEMO_STUDENTS
+    return []
   }
 }
 

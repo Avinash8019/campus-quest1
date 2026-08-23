@@ -80,7 +80,7 @@ function LeaderboardPage({ student }) {
   const top3 = rankedList.slice(0, 3)
 
   const currentRegNo = (student?.registrationNumber || '').trim().toUpperCase()
-  const studentFullName = student?.studentName || student?.name || 'Rahul Kumar'
+  const studentFullName = student?.studentName || student?.name || student?.registrationNumber || 'Student'
   const studentXp = Math.max(0, Number(student?.xp) || 0)
 
   return (
@@ -223,8 +223,8 @@ function LeaderboardPage({ student }) {
       {rankedList.length === 0 ? (
         <div className="clean-card empty-leaderboard-card">
           <span className="empty-sticker">🏆</span>
-          <h3>No students on the leaderboard yet.</h3>
-          <p>Complete campus quests to earn XP and claim the #1 rank on the podium!</p>
+          <h3>No students have played yet.</h3>
+          <p>No students have completed quests yet. Be the first to play and claim #1 on the leaderboard!</p>
         </div>
       ) : (
         <>

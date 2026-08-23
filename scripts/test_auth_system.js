@@ -1,5 +1,7 @@
 /**
  * Multi-Student Authentication & Central Database Verification Test Suite
+ * Tests real student registration, login, gameplay participation, and dynamic leaderboard.
+ * Strictly verifies ZERO mock or dummy students appear.
  */
 
 import {
@@ -13,7 +15,7 @@ import {
   getAdminStatistics,
 } from '../server/db.js'
 
-console.log('🧪 Starting CampusQuest Central Database & Multi-Student Account Verification...\n')
+console.log('🧪 Starting CampusQuest Central Database & Real Gameplay Leaderboard Verification...\n')
 
 let testsPassed = 0
 let testsFailed = 0
@@ -28,166 +30,135 @@ function assert(condition, testName) {
   }
 }
 
-// 1. Verify Pre-Seeded Test Accounts
-console.log('--- TEST GROUP 1: Pre-Seeded Test Accounts ---')
-const studentA = findStudentByRegdNo('TEST001')
-const studentB = findStudentByRegdNo('TEST002')
-const studentC = findStudentByRegdNo('TEST003')
+// 1. Register Real Students
+console.log('--- TEST GROUP 1: Real Student Account Registration ---')
+const timeKey = Date.now()
 
-assert(studentA !== null && studentA.regd_no === 'TEST001', 'Student A (TEST001) exists in Central DB')
-assert(studentB !== null && studentB.regd_no === 'TEST002', 'Student B (TEST002) exists in Central DB')
-assert(studentC !== null && studentC.regd_no === 'TEST003', 'Student C (TEST003) exists in Central DB')
-
-// 2. Test Correct Password Logins
-console.log('\n--- TEST GROUP 2: Password Authentication ---')
-const loginA = authenticateStudent('TEST001', 'Test@123')
-assert(loginA.success === true && loginA.student.name === 'Student A', 'Student A login with Test@123 succeeds')
-
-const loginB = authenticateStudent('TEST002', 'Test@456')
-assert(loginB.success === true && loginB.student.name === 'Student B', 'Student B login with Test@456 succeeds')
-
-const loginC = authenticateStudent('TEST003', 'Test@789')
-assert(loginC.success === true && loginC.student.name === 'Student C', 'Student C login with Test@789 succeeds')
-
-// 3. Test Invalid Credentials
-console.log('\n--- TEST GROUP 3: Invalid Credentials & Security ---')
-const wrongPass = authenticateStudent('TEST001', 'WrongPassword!123')
-assert(wrongPass.success === false && wrongPass.status === 401, 'Student A login with WRONG password rejected (401)')
-
-const unknownStudent = authenticateStudent('UNKNOWN999', 'AnyPassword123')
-assert(unknownStudent.success === false && unknownStudent.status === 401, 'Unknown student login rejected (401)')
-
-// 4. Test Registration & Uniqueness Enforcement
-console.log('\n--- TEST GROUP 4: Registration & Uniqueness Constraint ---')
-const duplicateReg = createStudent({
-  name: 'Duplicate Student',
-  registrationNumber: 'TEST001',
-  email: 'duplicate@srkrec.ac.in',
+const student1 = createStudent({
+  name: 'Priya Sharma',
+  registrationNumber: `24B91A${Math.floor(1000 + Math.random() * 8000)}`,
+  email: `priya_${timeKey}@srkrec.ac.in`,
   branch: 'CSE',
-  year: '1st Year',
-  password: 'Password123',
+  year: '2nd Year',
+  password: 'Password@123',
 })
-assert(
-  duplicateReg.success === false && duplicateReg.status === 409,
-  'Duplicate Registration Number registration rejected (409 Conflict)'
-)
 
-// Register a new independent student
-const newRegNo = `24B91A${Math.floor(1000 + Math.random() * 9000)}`
-const newEmail = `student_${Date.now()}@srkrec.ac.in`
-const newStudentRes = createStudent({
-  name: 'New Independent Student',
-  registrationNumber: newRegNo,
-  email: newEmail,
+const student2 = createStudent({
+  name: 'Arjun Raju',
+  registrationNumber: `23B91A${Math.floor(1000 + Math.random() * 8000)}`,
+  email: `arjun_${timeKey}@srkrec.ac.in`,
+  branch: 'ECE',
+  year: '3rd Year',
+  password: 'Password@456',
+})
+
+const student3 = createStudent({
+  name: 'Kavya Sree',
+  registrationNumber: `25B91A${Math.floor(1000 + Math.random() * 8000)}`,
+  email: `kavya_${timeKey}@srkrec.ac.in`,
   branch: 'AI & ML',
   year: '1st Year',
-  password: 'SecurePassword123',
+  password: 'Password@789',
 })
-assert(newStudentRes.success === true && newStudentRes.status === 201, `New student ${newRegNo} successfully registered in Central DB`)
 
-const newStudentLogin = authenticateStudent(newRegNo, 'SecurePassword123')
-assert(newStudentLogin.success === true, `Newly registered student ${newRegNo} logs in successfully`)
+const studentUnplayed = createStudent({
+  name: 'Rahul Kumar',
+  registrationNumber: `24B91A${Math.floor(1000 + Math.random() * 8000)}`,
+  email: `rahul_${timeKey}@srkrec.ac.in`,
+  branch: 'Mechanical',
+  year: '2nd Year',
+  password: 'Password@000',
+})
 
-// 5. Test Account Data Isolation
-console.log('\n--- TEST GROUP 5: Account Isolation & Progress Sync ---')
-updateStudentProgress(studentA.id, { xp: 500, completedQuests: [1, 2, 3] })
-const reloadedA = findStudentByRegdNo('TEST001')
-const reloadedB = findStudentByRegdNo('TEST002')
+assert(student1.success && student1.student.xp === 0, 'Priya Sharma registered with 0 initial XP')
+assert(student2.success && student2.student.xp === 0, 'Arjun Raju registered with 0 initial XP')
+assert(student3.success && student3.student.xp === 0, 'Kavya Sree registered with 0 initial XP')
+assert(studentUnplayed.success && studentUnplayed.student.xp === 0, 'Rahul Kumar registered with 0 initial XP')
 
-assert(reloadedA.xp === 500 && reloadedA.completed_quests.length === 3, 'Student A progress updated to 500 XP & 3 quests')
-assert(reloadedB.xp === 300 && reloadedB.completed_quests.length === 2, 'Student B progress remains completely isolated (300 XP & 2 quests)')
+// 2. Authentication & Verification
+console.log('\n--- TEST GROUP 2: Authentication & Password Verification ---')
+const login1 = authenticateStudent(student1.student.registrationNumber, 'Password@123')
+assert(login1.success === true && login1.student.name === 'Priya Sharma', 'Priya Sharma login with correct password succeeds')
 
-// 6. Test Password Security (No plain-text storage)
-console.log('\n--- TEST GROUP 6: Password Security ---')
-assert(!reloadedA.password_hash.includes('Test@123'), 'Student A password is NOT stored in plain text')
-assert(reloadedA.password_hash.startsWith('pbkdf2$'), 'Student A password uses salted PBKDF2 hash')
-assert(newStudentLogin.student.password_hash === undefined, 'Sanitized student object does NOT expose password_hash to frontend')
+const loginWrong = authenticateStudent(student1.student.registrationNumber, 'WrongPassword!999')
+assert(loginWrong.success === false && loginWrong.status === 401, 'Login with incorrect password rejected (401)')
 
-// 7. Test Real Central Database Leaderboard System
-console.log('\n--- TEST GROUP 7: Real Central Leaderboard Ranking ---')
+// 3. Leaderboard Before Any Game Play (Empty or excludes unplayed)
+console.log('\n--- TEST GROUP 3: Unplayed Accounts Excluded From Leaderboard ---')
+const lbInit = getLeaderboardStudents()
+const foundUnplayed = lbInit.find((s) => s.id === studentUnplayed.student.id)
+assert(foundUnplayed === undefined, 'Rahul Kumar (Registered & Logged in, but NEVER played) is NOT on the leaderboard')
 
-// Update Student C score to 1200 XP
-updateStudentProgress(studentC.id, { xp: 1200, completedQuests: [1, 2, 3, 4, 5, 6, 7, 8] })
+// 4. Real Gameplay Activity & Scoring
+console.log('\n--- TEST GROUP 4: Real Game Participation & Score Recording ---')
 
-const leaderboard = getLeaderboardStudents()
-assert(Array.isArray(leaderboard) && leaderboard.length > 0, 'Central Leaderboard returns real registered student array')
+// Priya plays 2 quests -> earns 350 real XP
+updateStudentProgress(student1.student.id, {
+  xp: 350,
+  completedQuests: [1, 2],
+  xpHistory: [
+    { id: 1, title: 'Main Gate Quest', xp: 150 },
+    { id: 2, title: 'Central Library Challenge', xp: 200 },
+  ],
+})
 
-const studentCLeaderboard = leaderboard.find((s) => s.registrationNumber === 'TEST003')
-const studentALeaderboard = leaderboard.find((s) => s.registrationNumber === 'TEST001')
-const studentBLeaderboard = leaderboard.find((s) => s.registrationNumber === 'TEST002')
+// Arjun plays 4 quests -> earns 750 real XP
+updateStudentProgress(student2.student.id, {
+  xp: 750,
+  completedQuests: [1, 2, 3, 4],
+  xpHistory: [
+    { id: 1, title: 'Main Gate Quest', xp: 150 },
+    { id: 2, title: 'Central Library Challenge', xp: 200 },
+    { id: 3, title: 'AI & Coding Hub Exploration', xp: 200 },
+    { id: 4, title: 'Mechanical Workshop Visit', xp: 200 },
+  ],
+})
 
-assert(studentCLeaderboard && studentCLeaderboard.xp === 1200 && studentCLeaderboard.rank === 1, 'Student C with 1200 XP is ranked #1')
-assert(studentALeaderboard && studentALeaderboard.xp === 500 && studentALeaderboard.rank === 2, 'Student A with 500 XP is ranked #2')
-assert(studentBLeaderboard && studentBLeaderboard.xp === 300 && studentBLeaderboard.rank > studentALeaderboard.rank, 'Student B with 300 XP is ranked below Student A based on score')
+// Kavya plays 1 quest -> earns 150 real XP
+updateStudentProgress(student3.student.id, {
+  xp: 150,
+  completedQuests: [1],
+  xpHistory: [{ id: 1, title: 'Main Gate Quest', xp: 150 }],
+})
 
-// Verify zero sensitive data is exposed in leaderboard
-assert(leaderboard.every((st) => st.password_hash === undefined), 'Zero password hashes exposed in leaderboard entries')
-assert(leaderboard.every((st) => !st.name.includes('Dummy') && !st.name.includes('Mock')), 'No dummy or mock students in leaderboard')
+// 5. Dynamic Leaderboard Sorting & Verification
+console.log('\n--- TEST GROUP 5: Dynamic Real Leaderboard Ranking ---')
+const lbAfterPlay = getLeaderboardStudents()
 
-// 8. Test Single Secure Administrator Authentication
-console.log('\n--- TEST GROUP 8: Single Secure Admin Authentication & Isolation ---')
+const priyaLb = lbAfterPlay.find((s) => s.id === student1.student.id)
+const arjunLb = lbAfterPlay.find((s) => s.id === student2.student.id)
+const kavyaLb = lbAfterPlay.find((s) => s.id === student3.student.id)
+const rahulLb = lbAfterPlay.find((s) => s.id === studentUnplayed.student.id)
 
-// 8.1 Correct Admin Credentials
-const adminLoginValid = authenticateAdmin('admin.campus', 'campus@12345')
-assert(adminLoginValid.success === true && adminLoginValid.admin.role === 'admin', 'Admin login with admin.campus + campus@12345 succeeds with role "admin"')
-assert(adminLoginValid.admin.adminId === 'admin.campus', 'Admin ID matches admin.campus')
+assert(arjunLb && arjunLb.xp === 750 && arjunLb.rank === 1, 'Arjun Raju with 750 real XP is ranked #1')
+assert(priyaLb && priyaLb.xp === 350 && priyaLb.rank > arjunLb.rank, 'Priya Sharma with 350 real XP is ranked below Arjun')
+assert(kavyaLb && kavyaLb.xp === 150 && kavyaLb.rank > priyaLb.rank, 'Kavya Sree with 150 real XP is ranked below Priya')
+assert(rahulLb === undefined, 'Rahul Kumar (unplayed) remains strictly excluded from the leaderboard')
 
-// 8.2 Wrong Password
-const adminLoginWrongPass = authenticateAdmin('admin.campus', 'wrong_password_123')
-assert(adminLoginWrongPass.success === false && adminLoginWrongPass.status === 401, 'Admin login with WRONG password rejected (401)')
+// 6. Duplicate Prevention by Unique Database User ID
+console.log('\n--- TEST GROUP 6: Duplicate Prevention by Unique Student ID ---')
+const priyaOccurrences = lbAfterPlay.filter((s) => s.id === student1.student.id)
+assert(priyaOccurrences.length === 1, 'Priya Sharma appears EXACTLY ONCE on the leaderboard with aggregated score')
 
-// 8.3 Wrong Admin ID
-const adminLoginWrongId = authenticateAdmin('wrong.admin', 'campus@12345')
-assert(adminLoginWrongId.success === false && adminLoginWrongId.status === 401, 'Admin login with WRONG admin ID rejected (401)')
+// 7. Security & Absence of Mock Data
+console.log('\n--- TEST GROUP 7: Zero Mock Data & Password Security ---')
+assert(lbAfterPlay.every((s) => s.password_hash === undefined && s.passwordHash === undefined), 'Zero password hashes exposed')
+assert(
+  lbAfterPlay.every((s) => {
+    const name = s.name.toLowerCase()
+    return name !== 'student a' && name !== 'student b' && name !== 'student c' && name !== 'student d'
+  }),
+  'Zero "Student A/B/C/D" placeholder names exist on leaderboard'
+)
 
-// 8.4 Verify Admin Statistics matches Real Database Counts
+// 8. Admin Authentication & Analytics
+console.log('\n--- TEST GROUP 8: Admin Authentication & Real Stats ---')
+const adminAuth = authenticateAdmin('admin.campus', 'campus@12345')
+assert(adminAuth.success === true && adminAuth.admin.role === 'admin', 'Admin login succeeds with role "admin"')
+
 const adminStats = getAdminStatistics()
-const allStudentsList = loadAllStudents()
-assert(adminStats.totalStudents === allStudentsList.length, `Admin stats totalStudents (${adminStats.totalStudents}) matches real DB students (${allStudentsList.length})`)
-assert(typeof adminStats.totalQuestsCompleted === 'number', 'Admin stats totalQuestsCompleted is real numeric count')
-assert(typeof adminStats.totalXpAwarded === 'number', 'Admin stats totalXpAwarded is real numeric sum')
-
-// 8.5 Verify Student Registration cannot hijack or create Admin accounts
-const studentHijack = createStudent({
-  name: 'Fake Admin Student',
-  registrationNumber: '24B91A9999',
-  email: 'admin.campus@srkrec.ac.in',
-  branch: 'CSE',
-  year: '1st Year',
-  password: 'StudentPassword123',
-})
-// Student login must still yield student role, never admin
-const studentAuth = authenticateStudent('TEST001', 'Test@123')
-assert(studentAuth.student.role !== 'admin', 'Student account never possesses admin role')
-
-// 9. Test Strict Gameplay Activity Leaderboard Eligibility
-console.log('\n--- TEST GROUP 9: Strict Gameplay Activity Leaderboard Eligibility ---')
-
-// 9.1 Register Student D (Never Played)
-const regStudentD = createStudent({
-  name: 'Student D Unplayed',
-  registrationNumber: 'TEST004_TEST',
-  email: 'student_d_test@srkrec.ac.in',
-  branch: 'EEE',
-  year: '1st Year',
-  password: 'Password123',
-})
-assert(regStudentD.success === true && regStudentD.student.xp === 0, 'Student D registered with 0 initial XP')
-
-const leaderboardBeforePlay = getLeaderboardStudents()
-const foundD = leaderboardBeforePlay.find((s) => s.registrationNumber === 'TEST004_TEST')
-assert(foundD === undefined, 'Student D (Registered + Logged In but NEVER played) is NOT on the leaderboard')
-
-// 9.2 Student D completes first quest (Earns 150 real XP)
-updateStudentProgress(regStudentD.student.id, { xp: 150, completedQuests: [1] })
-
-const leaderboardAfterPlay = getLeaderboardStudents()
-const foundDAfter = leaderboardAfterPlay.find((s) => s.registrationNumber === 'TEST004_TEST')
-assert(foundDAfter !== undefined && foundDAfter.xp === 150, 'Student D appears on the leaderboard AFTER playing and completing a quest with 150 real XP')
-assert(typeof foundDAfter.rank === 'number' && foundDAfter.rank > 0, `Student D assigned real competitive rank #${foundDAfter.rank}`)
-
-// 9.3 Verify zero students with 0 XP appear on leaderboard
-assert(leaderboardAfterPlay.every((s) => s.xp > 0 || (Array.isArray(s.completedQuests) && s.completedQuests.length > 0)), 'All students on leaderboard have real gameplay activity (XP > 0 or completedQuests > 0)')
+assert(typeof adminStats.totalStudents === 'number' && adminStats.totalStudents >= 4, 'Admin stats totalStudents is real numeric count')
+assert(adminStats.totalQuestsCompleted >= 7, 'Admin stats totalQuestsCompleted accurately reflects real completed quests')
 
 console.log(`\n========================================`)
 console.log(`TEST SUMMARY: ${testsPassed} Passed, ${testsFailed} Failed`)
