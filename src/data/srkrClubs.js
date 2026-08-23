@@ -34,6 +34,7 @@ export const srkrClubs = [
     name: 'AI & ML Club',
     category: 'Technical',
     icon: '🤖',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80',
     shortDescription: 'Student technical community exploring artificial intelligence, deep learning models, and computer vision projects.',
     description: 'The AI & ML Club at SRKR connects aspiring machine learning engineers to build predictive models, participate in AI hackathons, and collaborate on cutting-edge research.',
     activities: [
@@ -58,6 +59,7 @@ export const srkrClubs = [
     name: 'SRKR Coding Club',
     category: 'Technical',
     icon: '💻',
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
     shortDescription: 'Promotes coding culture through workshops, coding challenges, hands-on development sessions, and hackathons.',
     description: 'The SRKR Coding Club is an official student technical organization dedicated to cultivating software development, algorithm design, and competitive programming proficiency across all branches. It organizes regular peer learning sessions, hackathons, and technical interview workshops.',
     activities: [
@@ -87,6 +89,7 @@ export const srkrClubs = [
     name: 'Language Nest',
     category: 'Student Activity',
     icon: '🌐',
+    image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80',
     shortDescription: 'Centre for foreign languages, communicative English skills, and global career readiness.',
     description: 'Language Nest facilitates linguistic growth, foreign language orientation (including Japanese, German, and French), soft skills development, and international education preparation for SRKR students.',
     activities: [
@@ -111,6 +114,7 @@ export const srkrClubs = [
     name: 'Literary & Cultural Club',
     category: 'Cultural',
     icon: '🎭',
+    image: 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?auto=format&fit=crop&w=800&q=80',
     shortDescription: 'Coordinates campus arts, literature, stage drama, music, dance, and annual cultural celebrations.',
     description: 'The Literary & Cultural Club is the premier creative body on campus responsible for fostering artistic talents, dramatic performance, literary expression, and organizing flagship college celebrations like JAITRA.',
     activities: [
@@ -135,6 +139,7 @@ export const srkrClubs = [
     name: 'Indian Society for Technical Education (ISTE)',
     category: 'Technical',
     icon: '⚙️',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
     shortDescription: 'National professional society promoting technical innovation, paper presentations, and engineering symposiums.',
     description: 'The ISTE Student Chapter at SRKR provides an interdisciplinary platform for budding engineers to present research findings, attend guest lectures by eminent industrialists, and participate in technical competitions.',
     activities: [
@@ -159,6 +164,7 @@ export const srkrClubs = [
     name: 'IEEE Student Branch',
     category: 'Technical',
     icon: '⚡',
+    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80',
     shortDescription: 'World largest technical professional organization promoting electrical, electronics, and computing innovations.',
     description: 'IEEE Student Branch at SRKR organizes international webinars, technical paper contests, circuit design challenges, and gives students access to IEEE Xplore digital library publications and global networking.',
     activities: [

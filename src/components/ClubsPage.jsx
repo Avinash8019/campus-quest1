@@ -12,6 +12,8 @@ const CLUB_CATEGORIES = [
   { id: 'Professional Societies', label: '⚙️ Professional Chapters' },
 ]
 
+const DEFAULT_CLUB_IMG = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80'
+
 function ClubsPage({ student }) {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
@@ -134,6 +136,7 @@ function ClubsPage({ student }) {
           const formattedDate = formatClubDate(club.meetingDate || club.meetingSchedule)
           const formattedTime = formatClubTime(club.startTime, club.endTime)
           const clubLocation = club.location || 'SRKR Campus'
+          const clubImg = club.image || DEFAULT_CLUB_IMG
 
           return (
             <article
@@ -141,15 +144,25 @@ function ClubsPage({ student }) {
               className="desktop-card club-desktop-card"
               onClick={() => setActiveClubModal(club)}
             >
-              <div>
-                <div className="club-card-top-row">
-                  <div className="club-badge-row">
-                    <span className="club-sticker-mini">{club.icon || '🏛️'}</span>
-                    <span className="mini-chip">{club.category}</span>
-                  </div>
+              {/* Club Aspect-Ratio Card Header Image */}
+              <div className="club-card-image-wrap">
+                <img
+                  src={clubImg}
+                  alt={club.name}
+                  className="club-card-img"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.onerror = null
+                    e.target.src = DEFAULT_CLUB_IMG
+                  }}
+                />
+                <div className="event-image-overlay">
+                  <span className="event-category-badge">{club.icon || '🏛️'} {club.category}</span>
                   <span className="official-verified-tag">✓ Official</span>
                 </div>
+              </div>
 
+              <div>
                 <h2 className="event-card-title">{club.name}</h2>
                 <p className="event-desc-snippet">{club.shortDescription || club.description}</p>
               </div>
@@ -209,13 +222,19 @@ function ClubsPage({ student }) {
           onClick={(e) => e.target === e.currentTarget && setActiveClubModal(null)}
         >
           <div className="desktop-card club-modal-sheet" role="dialog" aria-modal="true">
-            <div className="modal-sheet-header">
-              <div className="club-badge-row">
-                <span className="club-sticker-mini">{activeClubModal.icon || '🏛️'}</span>
-                <span className="modal-category-chip">{activeClubModal.category}</span>
-              </div>
+            {/* Modal Top Image */}
+            <div className="club-modal-image-wrap">
+              <img
+                src={activeClubModal.image || DEFAULT_CLUB_IMG}
+                alt={activeClubModal.name}
+                className="club-modal-img"
+                onError={(e) => {
+                  e.target.onerror = null
+                  e.target.src = DEFAULT_CLUB_IMG
+                }}
+              />
               <button
-                className="clean-close-btn"
+                className="clean-close-btn modal-img-close-btn"
                 type="button"
                 onClick={() => setActiveClubModal(null)}
                 aria-label="Close modal"
@@ -224,7 +243,15 @@ function ClubsPage({ student }) {
               </button>
             </div>
 
-            <h2 className="modal-club-name">{activeClubModal.name}</h2>
+            <div className="modal-sheet-content-wrap">
+              <div className="modal-sheet-header">
+                <div className="club-badge-row">
+                  <span className="club-sticker-mini">{activeClubModal.icon || '🏛️'}</span>
+                  <span className="modal-category-chip">{activeClubModal.category}</span>
+                </div>
+              </div>
+
+              <h2 className="modal-club-name">{activeClubModal.name}</h2>
 
             <div className="modal-info-bubble">
               <div className="event-info-row">
@@ -263,22 +290,23 @@ function ClubsPage({ student }) {
               </div>
             )}
 
-            <div className="modal-actions-row">
-              <button
-                className={`game-secondary-btn modal-reminder-btn${interestedClubs.includes(activeClubModal.id) || interestedClubs.includes(activeClubModal.name) ? ' active' : ''}`}
-                type="button"
-                onClick={() => toggleInterest(activeClubModal)}
-              >
-                {interestedClubs.includes(activeClubModal.id) || interestedClubs.includes(activeClubModal.name) ? '⭐ INTEREST RECORDED' : '⭐ I\'M INTERESTED'}
-              </button>
+              <div className="modal-actions-row">
+                <button
+                  className={`game-secondary-btn modal-reminder-btn${interestedClubs.includes(activeClubModal.id) || interestedClubs.includes(activeClubModal.name) ? ' active' : ''}`}
+                  type="button"
+                  onClick={() => toggleInterest(activeClubModal)}
+                >
+                  {interestedClubs.includes(activeClubModal.id) || interestedClubs.includes(activeClubModal.name) ? '⭐ INTEREST RECORDED' : '⭐ I\'M INTERESTED'}
+                </button>
 
-              <button
-                className="game-primary-btn modal-maps-btn"
-                type="button"
-                onClick={() => openLocationInMaps(activeClubModal.location)}
-              >
-                🗺️ FIND MEETING VENUE ↗
-              </button>
+                <button
+                  className="game-primary-btn modal-maps-btn"
+                  type="button"
+                  onClick={() => openLocationInMaps(activeClubModal.location)}
+                >
+                  🗺️ FIND MEETING VENUE ↗
+                </button>
+              </div>
             </div>
           </div>
         </div>

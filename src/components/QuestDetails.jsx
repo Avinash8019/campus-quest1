@@ -62,6 +62,18 @@ function QuestDetails({ quest, student, onStudentUpdate, onBack }) {
     ]
   }, [quest])
 
+  const WRONG_ANSWER_COIN_PENALTY = 10
+
+  function deductCoinsOnWrongAnswer() {
+    const currentXp = Math.max(0, Number(student?.xp) || 0)
+    const newXp = Math.max(0, currentXp - WRONG_ANSWER_COIN_PENALTY)
+    const updated = {
+      ...student,
+      xp: newXp,
+    }
+    onStudentUpdate(updated)
+  }
+
   function saveProgress(partial) {
     const updated = {
       ...student,
@@ -92,6 +104,7 @@ function QuestDetails({ quest, student, onStudentUpdate, onBack }) {
       })
     } else {
       setStep1Feedback('incorrect')
+      deductCoinsOnWrongAnswer()
     }
   }
 
@@ -120,6 +133,7 @@ function QuestDetails({ quest, student, onStudentUpdate, onBack }) {
       })
     } else {
       setQuestionFeedback('incorrect')
+      deductCoinsOnWrongAnswer()
     }
   }
 
@@ -151,6 +165,7 @@ function QuestDetails({ quest, student, onStudentUpdate, onBack }) {
       })
     } else {
       setStep3Feedback('incorrect')
+      deductCoinsOnWrongAnswer()
     }
   }
 
@@ -243,7 +258,8 @@ function QuestDetails({ quest, student, onStudentUpdate, onBack }) {
         step: 4,
       })
     } else {
-      setManualCodeError('Please check the code and try again.')
+      deductCoinsOnWrongAnswer()
+      setManualCodeError('Incorrect verification code (-10 Coins). Please check the code and try again.')
     }
   }
 
@@ -463,8 +479,8 @@ function QuestDetails({ quest, student, onStudentUpdate, onBack }) {
               {/* WRONG ANSWER FEEDBACK */}
               {step1Feedback === 'incorrect' && !isLocationSolved && (
                 <div className="feedback-notice-card error" role="alert">
-                  <div className="feedback-title">❌ Wrong option</div>
-                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Try again!</p>
+                  <div className="feedback-title">❌ Wrong option (-10 Coins)</div>
+                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>10 Coins deducted. Review the clues and try again!</p>
                   {quest.step1Hint && (
                     <p style={{ margin: 0, fontSize: 13, color: '#991b1b' }}>
                       <strong>💡 Hint:</strong> {quest.step1Hint}
@@ -549,8 +565,8 @@ function QuestDetails({ quest, student, onStudentUpdate, onBack }) {
               {/* WRONG ANSWER FEEDBACK */}
               {questionFeedback === 'incorrect' && !isQuestionAnswered && (
                 <div className="feedback-notice-card error" role="alert">
-                  <div className="feedback-title">❌ Wrong option</div>
-                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Try again!</p>
+                  <div className="feedback-title">❌ Wrong option (-10 Coins)</div>
+                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>10 Coins deducted. Think carefully and try again!</p>
                   {(quest.hint || quest.step2Hint) && (
                     <p style={{ margin: 0, fontSize: 13, color: '#991b1b' }}>
                       <strong>💡 Hint:</strong> {quest.hint || quest.step2Hint}
@@ -644,8 +660,8 @@ function QuestDetails({ quest, student, onStudentUpdate, onBack }) {
               {/* FEEDBACK FOR STEP 3 */}
               {step3Feedback === 'incorrect' && !isStep3Answered && (
                 <div className="feedback-notice-card error" role="alert">
-                  <div className="feedback-title">❌ Wrong option</div>
-                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Try again!</p>
+                  <div className="feedback-title">❌ Wrong option (-10 Coins)</div>
+                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>10 Coins deducted. Look closely at the image and try again!</p>
                   {quest.step3Hint && (
                     <p style={{ margin: 0, fontSize: 13, color: '#991b1b' }}>
                       <strong>💡 Hint:</strong> {quest.step3Hint}

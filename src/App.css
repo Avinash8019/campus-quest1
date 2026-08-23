@@ -1083,19 +1083,22 @@ button {
   cursor: pointer;
 }
 
-.event-card-image-wrap {
+.event-card-image-wrap,
+.club-card-image-wrap {
   position: relative;
   width: calc(100% + 48px);
   margin: -24px -24px 16px;
-  height: 180px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   background-color: #f1f5f9;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
-.event-card-img {
+.event-card-img,
+.club-card-img {
   width: 100%;
   height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   display: block;
 }
@@ -2545,6 +2548,51 @@ button {
   border-radius: 26px;
   padding: 28px;
   background-color: #ffffff;
+}
+
+.event-modal-image-wrap,
+.club-modal-image-wrap {
+  position: relative;
+  width: calc(100% + 56px);
+  margin: -28px -28px 20px -28px;
+  aspect-ratio: 16 / 9;
+  max-height: 260px;
+  overflow: hidden;
+  background-color: #f1f5f9;
+  border-radius: 26px 26px 0 0;
+}
+
+.event-modal-img,
+.club-modal-img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.modal-img-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.modal-img-close-btn:hover {
+  transform: scale(1.08);
+  background: rgba(15, 23, 42, 0.95);
 }
 
 .dialog-modal-box {
