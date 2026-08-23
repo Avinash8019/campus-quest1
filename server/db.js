@@ -497,3 +497,85 @@ export function getLeaderboardStudents() {
     }
   })
 }
+
+// ==========================================
+// SINGLE SECURE ADMINISTRATOR CONFIGURATION
+// ==========================================
+const ROOT_ADMIN_ID = (process.env.ADMIN_ID || 'admin.campus').trim().toLowerCase()
+const ROOT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'campus@12345'
+const ROOT_ADMIN_PASSWORD_HASH = hashPassword(ROOT_ADMIN_PASSWORD)
+
+/**
+ * Authenticates the Single Administrator account against the central backend.
+ */
+export function authenticateAdmin(identifier, password) {
+  const cleanId = (identifier || '').trim().toLowerCase()
+  const cleanPass = (password || '').trim()
+
+  if (!cleanId || !cleanPass) {
+    return { success: false, status: 400, error: 'Please enter both Administrator ID and password.' }
+  }
+
+  // Strictly check against the single admin account
+  const validIdentifiers = [
+    ROOT_ADMIN_ID,
+    `${ROOT_ADMIN_ID}@srkrec.ac.in`,
+    'admin',
+    'admin@srkrec.ac.in',
+  ]
+
+  if (!validIdentifiers.includes(cleanId)) {
+    return { success: false, status: 401, error: 'Invalid Administrator ID or password.' }
+  }
+
+  const isMatch = verifyPassword(cleanPass, ROOT_ADMIN_PASSWORD_HASH)
+  if (!isMatch) {
+    return { success: false, status: 401, error: 'Invalid Administrator ID or password.' }
+  }
+
+  return {
+    success: true,
+    status: 200,
+    admin: {
+      id: 'admin_root',
+      adminId: ROOT_ADMIN_ID,
+      name: 'SRKR Campus Administrator',
+      email: 'admin.campus@srkrec.ac.in',
+      role: 'admin',
+      isAuthenticated: true,
+      authenticatedAt: new Date().toISOString(),
+    },
+  }
+}
+
+/**
+ * Retrieves real statistics calculated from the central database.
+ */
+export function getAdminStatistics() {
+  const students = loadAllStudents()
+  const totalStudents = students.length
+  const totalQuestsCompleted = students.reduce(
+    (sum, s) => sum + (Array.isArray(s.completed_quests) ? s.completed_quests.length : 0),
+    0
+  )
+  const totalXpAwarded = students.reduce((sum, s) => sum + (typeof s.xp === 'number' ? s.xp : 0), 0)
+
+  // Department Breakdown
+  const deptMap = {}
+  students.forEach((s) => {
+    const dept = (s.branch || 'AI & ML').trim()
+    if (!deptMap[dept]) {
+      deptMap[dept] = { count: 0, totalXp: 0 }
+    }
+    deptMap[dept].count++
+    deptMap[dept].totalXp += s.xp || 0
+  })
+
+  return {
+    totalStudents,
+    totalQuestsCompleted,
+    totalXpAwarded,
+    departments: deptMap,
+    timestamp: new Date().toISOString(),
+  }
+}

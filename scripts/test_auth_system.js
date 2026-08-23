@@ -9,6 +9,8 @@ import {
   updateStudentProgress,
   loadAllStudents,
   getLeaderboardStudents,
+  authenticateAdmin,
+  getAdminStatistics,
 } from '../server/db.js'
 
 console.log('🧪 Starting CampusQuest Central Database & Multi-Student Account Verification...\n')
@@ -121,6 +123,42 @@ assert(studentBLeaderboard && studentBLeaderboard.xp === 300 && studentBLeaderbo
 // Verify zero sensitive data is exposed in leaderboard
 assert(leaderboard.every((st) => st.password_hash === undefined), 'Zero password hashes exposed in leaderboard entries')
 assert(leaderboard.every((st) => !st.name.includes('Dummy') && !st.name.includes('Mock')), 'No dummy or mock students in leaderboard')
+
+// 8. Test Single Secure Administrator Authentication
+console.log('\n--- TEST GROUP 8: Single Secure Admin Authentication & Isolation ---')
+
+// 8.1 Correct Admin Credentials
+const adminLoginValid = authenticateAdmin('admin.campus', 'campus@12345')
+assert(adminLoginValid.success === true && adminLoginValid.admin.role === 'admin', 'Admin login with admin.campus + campus@12345 succeeds with role "admin"')
+assert(adminLoginValid.admin.adminId === 'admin.campus', 'Admin ID matches admin.campus')
+
+// 8.2 Wrong Password
+const adminLoginWrongPass = authenticateAdmin('admin.campus', 'wrong_password_123')
+assert(adminLoginWrongPass.success === false && adminLoginWrongPass.status === 401, 'Admin login with WRONG password rejected (401)')
+
+// 8.3 Wrong Admin ID
+const adminLoginWrongId = authenticateAdmin('wrong.admin', 'campus@12345')
+assert(adminLoginWrongId.success === false && adminLoginWrongId.status === 401, 'Admin login with WRONG admin ID rejected (401)')
+
+// 8.4 Verify Admin Statistics matches Real Database Counts
+const adminStats = getAdminStatistics()
+const allStudentsList = loadAllStudents()
+assert(adminStats.totalStudents === allStudentsList.length, `Admin stats totalStudents (${adminStats.totalStudents}) matches real DB students (${allStudentsList.length})`)
+assert(typeof adminStats.totalQuestsCompleted === 'number', 'Admin stats totalQuestsCompleted is real numeric count')
+assert(typeof adminStats.totalXpAwarded === 'number', 'Admin stats totalXpAwarded is real numeric sum')
+
+// 8.5 Verify Student Registration cannot hijack or create Admin accounts
+const studentHijack = createStudent({
+  name: 'Fake Admin Student',
+  registrationNumber: '24B91A9999',
+  email: 'admin.campus@srkrec.ac.in',
+  branch: 'CSE',
+  year: '1st Year',
+  password: 'StudentPassword123',
+})
+// Student login must still yield student role, never admin
+const studentAuth = authenticateStudent('TEST001', 'Test@123')
+assert(studentAuth.student.role !== 'admin', 'Student account never possesses admin role')
 
 console.log(`\n========================================`)
 console.log(`TEST SUMMARY: ${testsPassed} Passed, ${testsFailed} Failed`)

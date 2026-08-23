@@ -16,6 +16,8 @@ import {
   loadAllStudents,
   sanitizeStudent,
   getLeaderboardStudents,
+  authenticateAdmin,
+  getAdminStatistics,
 } from './server/db.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -26,47 +28,60 @@ const HOST = '0.0.0.0'
 const DIST_DIR = path.resolve(__dirname, 'dist')
 const JWT_SECRET = process.env.JWT_SECRET || 'campusquest_super_secret_jwt_key_2026_srkr'
 
-// Active sessions in-memory store mapping token -> { studentId, expiresAt }
+// Active sessions in-memory store mapping token -> { userId, role, expiresAt }
 const activeSessions = new Map()
 
 /**
- * Creates a signed session token for authenticated student.
+ * Creates a signed session token with role information.
  */
-function createSessionToken(studentId) {
+function createSessionToken(userId, role = 'student') {
   const timestamp = Date.now()
   const random = crypto.randomBytes(16).toString('hex')
-  const payload = `${studentId}:${timestamp}:${random}`
+  const payload = `${userId}:${role}:${timestamp}:${random}`
   const signature = crypto.createHmac('sha256', JWT_SECRET).update(payload).digest('hex')
   const token = Buffer.from(`${payload}:${signature}`).toString('base64url')
 
   // Expires in 30 days
   const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000
-  activeSessions.set(token, { studentId, expiresAt })
+  activeSessions.set(token, { userId, role, expiresAt })
   return token
 }
 
 /**
- * Verifies session token and returns student ID.
+ * Verifies session token and returns { userId, role }.
  */
 function verifySessionToken(token) {
   if (!token || typeof token !== 'string') return null
   try {
     const raw = Buffer.from(token, 'base64url').toString('utf-8')
     const parts = raw.split(':')
-    if (parts.length !== 4) return null
-    const [studentId, timestamp, random, signature] = parts
-    const payload = `${studentId}:${timestamp}:${random}`
-    const expectedSig = crypto.createHmac('sha256', JWT_SECRET).update(payload).digest('hex')
+    
+    // Support new 5-part token format (userId:role:timestamp:random:signature)
+    if (parts.length === 5) {
+      const [userId, role, timestamp, random, signature] = parts
+      const payload = `${userId}:${role}:${timestamp}:${random}`
+      const expectedSig = crypto.createHmac('sha256', JWT_SECRET).update(payload).digest('hex')
+      if (signature !== expectedSig) return null
+      return { userId, role }
+    }
 
-    if (signature !== expectedSig) return null
-    return studentId
+    // Support legacy 4-part token format (userId:timestamp:random:signature)
+    if (parts.length === 4) {
+      const [userId, timestamp, random, signature] = parts
+      const payload = `${userId}:${timestamp}:${random}`
+      const expectedSig = crypto.createHmac('sha256', JWT_SECRET).update(payload).digest('hex')
+      if (signature !== expectedSig) return null
+      return { userId, role: 'student' }
+    }
+
+    return null
   } catch {
     return null
   }
 }
 
 /**
- * Express Authentication Middleware for protected routes.
+ * Express Student Authentication Middleware for student protected routes.
  */
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization || ''
@@ -76,17 +91,43 @@ function authMiddleware(req, res, next) {
     return res.status(401).json({ success: false, error: 'Authentication required. Please log in.' })
   }
 
-  const studentId = verifySessionToken(token)
-  if (!studentId) {
+  const session = verifySessionToken(token)
+  if (!session || !session.userId) {
     return res.status(401).json({ success: false, error: 'Session expired or invalid. Please log in again.' })
   }
 
-  const student = findStudentById(studentId)
+  const student = findStudentById(session.userId)
   if (!student) {
     return res.status(401).json({ success: false, error: 'Student account not found.' })
   }
 
   req.student = student
+  req.token = token
+  req.role = session.role || 'student'
+  next()
+}
+
+/**
+ * Express Admin Authorization Middleware for admin-only routes.
+ * Strictly verifies role = 'admin'.
+ */
+function adminAuthMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization || ''
+  const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : (req.headers['x-auth-token'] || '')
+
+  if (!token) {
+    return res.status(401).json({ success: false, error: 'Administrator authentication required.' })
+  }
+
+  const session = verifySessionToken(token)
+  if (!session || session.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Access denied. Administrator authorization required.' })
+  }
+
+  req.admin = {
+    id: session.userId,
+    role: 'admin',
+  }
   req.token = token
   next()
 }
@@ -220,6 +261,104 @@ app.get('/api/leaderboard', (req, res) => {
     console.error('Leaderboard error:', err)
     return res.status(500).json({ success: false, error: 'Failed to retrieve leaderboard from database.' })
   }
+})
+
+// ==========================================
+// ADMIN API ENDPOINTS (PROTECTED & ISOLATED)
+// ==========================================
+
+/**
+ * POST /api/admin/login
+ * Authenticates single administrator and issues admin token.
+ */
+app.post('/api/admin/login', (req, res) => {
+  try {
+    const { identifier, password } = req.body || {}
+    const result = authenticateAdmin(identifier, password)
+
+    if (!result.success) {
+      return res.status(result.status || 401).json({
+        success: false,
+        error: result.error,
+      })
+    }
+
+    const token = createSessionToken(result.admin.id, 'admin')
+    return res.status(200).json({
+      success: true,
+      token,
+      user: result.admin,
+    })
+  } catch (err) {
+    console.error('Admin login error:', err)
+    return res.status(500).json({ success: false, error: 'Internal server error during admin login.' })
+  }
+})
+
+/**
+ * GET /api/admin/stats
+ * Returns real database statistics for administrator dashboard.
+ */
+app.get('/api/admin/stats', adminAuthMiddleware, (req, res) => {
+  try {
+    const stats = getAdminStatistics()
+    return res.status(200).json({
+      success: true,
+      stats,
+    })
+  } catch (err) {
+    console.error('Admin stats error:', err)
+    return res.status(500).json({ success: false, error: 'Failed to retrieve administrator statistics.' })
+  }
+})
+
+/**
+ * GET /api/admin/students
+ * Returns real registered student list with scores (strictly no passwords).
+ */
+app.get('/api/admin/students', adminAuthMiddleware, (req, res) => {
+  try {
+    const students = loadAllStudents().map(sanitizeStudent)
+    return res.status(200).json({
+      success: true,
+      total: students.length,
+      students,
+    })
+  } catch (err) {
+    console.error('Admin students list error:', err)
+    return res.status(500).json({ success: false, error: 'Failed to retrieve students list.' })
+  }
+})
+
+/**
+ * GET /api/admin/leaderboard
+ * Returns real leaderboard for administrator dashboard.
+ */
+app.get('/api/admin/leaderboard', adminAuthMiddleware, (req, res) => {
+  try {
+    const leaderboard = getLeaderboardStudents()
+    return res.status(200).json({
+      success: true,
+      total: leaderboard.length,
+      leaderboard,
+    })
+  } catch (err) {
+    console.error('Admin leaderboard error:', err)
+    return res.status(500).json({ success: false, error: 'Failed to retrieve leaderboard.' })
+  }
+})
+
+/**
+ * POST /api/admin/logout
+ * Terminates administrator session.
+ */
+app.post('/api/admin/logout', (req, res) => {
+  const authHeader = req.headers.authorization || ''
+  const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : (req.headers['x-auth-token'] || '')
+  if (token) {
+    activeSessions.delete(token)
+  }
+  return res.status(200).json({ success: true, message: 'Administrator logged out successfully.' })
 })
 
 /**
