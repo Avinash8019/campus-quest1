@@ -123,7 +123,32 @@ const INITIAL_STUDENTS = [
     branch: 'ECE',
     year: '1st Year',
     password_hash: hashPassword('Test@789'),
-    xp: 100,
+    xp: 850,
+    completed_quests: [1, 2, 3, 4, 5],
+    badges: ['🚀 Campus Explorer', '💻 Lab Master', '📚 Library Scholar'],
+    xp_history: [
+      { id: 1, title: 'Main Campus Gate Quest', xp: 150, date: new Date().toISOString() },
+      { id: 2, title: 'AI & Coding Hub Exploration', xp: 150, date: new Date().toISOString() },
+      { id: 3, title: 'Central Library Challenge', xp: 200, date: new Date().toISOString() },
+      { id: 4, title: 'Mechanical Workshop Visit', xp: 150, date: new Date().toISOString() },
+      { id: 5, title: 'ECE Electronics Lab Quest', xp: 200, date: new Date().toISOString() },
+    ],
+    quest_progress: {},
+    achievements: [],
+    uploaded_proofs: {},
+    reminders: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'student_test_004',
+    regd_no: 'TEST004',
+    name: 'Student D',
+    email: 'test004@srkrec.ac.in',
+    branch: 'EEE',
+    year: '1st Year',
+    password_hash: hashPassword('Test@000'),
+    xp: 0,
     completed_quests: [],
     badges: [],
     xp_history: [],
@@ -161,7 +186,7 @@ const INITIAL_STUDENTS = [
     branch: 'AI & ML',
     year: '1st Year',
     password_hash: hashPassword('Password123'),
-    xp: 100,
+    xp: 0,
     completed_quests: [],
     badges: [],
     xp_history: [],
@@ -318,7 +343,7 @@ export function createStudent({ name, registrationNumber, email, branch, year, p
     branch: cleanBranch,
     year: cleanYear,
     password_hash: hashPassword(cleanPass),
-    xp: 100,
+    xp: 0,
     completed_quests: [],
     badges: [],
     xp_history: [],
@@ -441,13 +466,21 @@ export function sanitizeStudent(student) {
 
 /**
  * Retrieves sorted, ranked student leaderboard from the central database.
- * Strictly uses real registered accounts and real scores.
+ * Strictly uses real registered accounts who have ACTUALLY PLAYED and earned game XP.
+ * Registered but never played students are excluded.
  */
 export function getLeaderboardStudents() {
   const students = loadAllStudents()
 
-  // Filter legitimate registered accounts and compute real scores
-  const formatted = students.map((s) => {
+  // Strict backend filter: ONLY students who have actually played (completedQuests > 0 OR XP > 0)
+  const activePlayers = students.filter((s) => {
+    const xp = typeof s.xp === 'number' ? s.xp : 0
+    const completedQuests = Array.isArray(s.completed_quests) ? s.completed_quests : []
+    return xp > 0 || completedQuests.length > 0
+  })
+
+  // Format real player records
+  const formatted = activePlayers.map((s) => {
     const xp = typeof s.xp === 'number' ? Math.max(0, s.xp) : 0
     const completedQuests = Array.isArray(s.completed_quests) ? s.completed_quests : []
     const badges = Array.isArray(s.badges) ? s.badges : []

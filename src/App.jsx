@@ -129,14 +129,14 @@ function App() {
       branch: activeSession.branch || 'AI & ML',
       year: activeSession.year || '2nd Year',
       isVerified: true,
-      xp: 100,
-      completedQuests: [],
-      badges: [],
-      xpHistory: [],
-      questProgress: {},
-      achievements: [],
-      uploadedProofs: {},
-      reminders: [],
+      xp: typeof activeSession.xp === 'number' ? activeSession.xp : 0,
+      completedQuests: Array.isArray(activeSession.completedQuests) ? activeSession.completedQuests : (activeSession.completed_quests || []),
+      badges: activeSession.badges || [],
+      xpHistory: activeSession.xpHistory || [],
+      questProgress: activeSession.questProgress || {},
+      achievements: activeSession.achievements || [],
+      uploadedProofs: activeSession.uploadedProofs || {},
+      reminders: activeSession.reminders || [],
     }
   })
 
@@ -152,6 +152,8 @@ function App() {
         email: authenticatedUser.email || saved.email,
         branch: authenticatedUser.branch || saved.branch,
         year: authenticatedUser.year || saved.year,
+        xp: typeof authenticatedUser.xp === 'number' ? authenticatedUser.xp : (saved.xp || 0),
+        completedQuests: Array.isArray(authenticatedUser.completedQuests) ? authenticatedUser.completedQuests : (saved.completedQuests || []),
       }
       saveData(updatedSaved)
       setStudent(updatedSaved)
@@ -164,14 +166,14 @@ function App() {
         branch: authenticatedUser.branch || 'AI & ML',
         year: authenticatedUser.year || '2nd Year',
         isVerified: true,
-        xp: 100,
-        completedQuests: [],
-        badges: [],
-        xpHistory: [],
-        questProgress: {},
-        achievements: [],
-        uploadedProofs: {},
-        reminders: [],
+        xp: typeof authenticatedUser.xp === 'number' ? authenticatedUser.xp : 0,
+        completedQuests: Array.isArray(authenticatedUser.completedQuests) ? authenticatedUser.completedQuests : [],
+        badges: authenticatedUser.badges || [],
+        xpHistory: authenticatedUser.xpHistory || [],
+        questProgress: authenticatedUser.questProgress || {},
+        achievements: authenticatedUser.achievements || [],
+        uploadedProofs: authenticatedUser.uploadedProofs || {},
+        reminders: authenticatedUser.reminders || [],
       }
       saveData(newStudent)
       saveLastNotifiedLevel(1)

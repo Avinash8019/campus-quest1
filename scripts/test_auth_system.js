@@ -160,6 +160,35 @@ const studentHijack = createStudent({
 const studentAuth = authenticateStudent('TEST001', 'Test@123')
 assert(studentAuth.student.role !== 'admin', 'Student account never possesses admin role')
 
+// 9. Test Strict Gameplay Activity Leaderboard Eligibility
+console.log('\n--- TEST GROUP 9: Strict Gameplay Activity Leaderboard Eligibility ---')
+
+// 9.1 Register Student D (Never Played)
+const regStudentD = createStudent({
+  name: 'Student D Unplayed',
+  registrationNumber: 'TEST004_TEST',
+  email: 'student_d_test@srkrec.ac.in',
+  branch: 'EEE',
+  year: '1st Year',
+  password: 'Password123',
+})
+assert(regStudentD.success === true && regStudentD.student.xp === 0, 'Student D registered with 0 initial XP')
+
+const leaderboardBeforePlay = getLeaderboardStudents()
+const foundD = leaderboardBeforePlay.find((s) => s.registrationNumber === 'TEST004_TEST')
+assert(foundD === undefined, 'Student D (Registered + Logged In but NEVER played) is NOT on the leaderboard')
+
+// 9.2 Student D completes first quest (Earns 150 real XP)
+updateStudentProgress(regStudentD.student.id, { xp: 150, completedQuests: [1] })
+
+const leaderboardAfterPlay = getLeaderboardStudents()
+const foundDAfter = leaderboardAfterPlay.find((s) => s.registrationNumber === 'TEST004_TEST')
+assert(foundDAfter !== undefined && foundDAfter.xp === 150, 'Student D appears on the leaderboard AFTER playing and completing a quest with 150 real XP')
+assert(typeof foundDAfter.rank === 'number' && foundDAfter.rank > 0, `Student D assigned real competitive rank #${foundDAfter.rank}`)
+
+// 9.3 Verify zero students with 0 XP appear on leaderboard
+assert(leaderboardAfterPlay.every((s) => s.xp > 0 || (Array.isArray(s.completedQuests) && s.completedQuests.length > 0)), 'All students on leaderboard have real gameplay activity (XP > 0 or completedQuests > 0)')
+
 console.log(`\n========================================`)
 console.log(`TEST SUMMARY: ${testsPassed} Passed, ${testsFailed} Failed`)
 console.log(`========================================`)

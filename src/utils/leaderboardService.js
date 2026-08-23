@@ -1,7 +1,8 @@
 /**
  * Real Multi-Student Leaderboard Service for CampusQuest
  * Connects directly to the Central Database via /api/leaderboard
- * Displays ONLY legitimately registered students with real quest scores.
+ * Displays ONLY real registered students who have ACTUALLY PLAYED and earned game XP.
+ * Registered but never played students are excluded.
  * ZERO mock or dummy students.
  */
 
@@ -69,7 +70,7 @@ export async function fetchCentralLeaderboard(currentStudent = null) {
 
 /**
  * Synchronous getter using local registered students and current student.
- * NO fake/mock data.
+ * Strictly returns only students with real game activity.
  */
 export function getAllLeaderboardStudents(currentStudent = null) {
   return getLocalRealStudents(currentStudent)
@@ -82,7 +83,13 @@ function getLocalRealStudents(currentStudent = null) {
   if (Array.isArray(registered)) {
     registered.forEach((st) => {
       const regNo = (st.registrationNumber || st.regd_no || '').trim().toUpperCase()
-      if (regNo) {
+      const xp = typeof st.xp === 'number' ? st.xp : 0
+      const completedQuests = Array.isArray(st.completedQuests)
+        ? st.completedQuests
+        : (st.completed_quests || [])
+
+      // ONLY students who have actually played (XP > 0 OR completed quests > 0)
+      if (regNo && (xp > 0 || completedQuests.length > 0)) {
         map.set(regNo, {
           id: st.id || regNo,
           name: st.name || st.studentName || 'SRKR Student',
@@ -93,8 +100,9 @@ function getLocalRealStudents(currentStudent = null) {
           branch: normalizeDepartment(st.branch || st.department),
           department: normalizeDepartment(st.branch || st.department),
           year: st.year || '1st Year',
-          xp: typeof st.xp === 'number' ? st.xp : 100,
-          completedQuests: Array.isArray(st.completedQuests) ? st.completedQuests : (st.completed_quests || []),
+          xp,
+          score: xp,
+          completedQuests,
           badges: Array.isArray(st.badges) ? st.badges : [],
         })
       }
@@ -105,17 +113,15 @@ function getLocalRealStudents(currentStudent = null) {
 }
 
 function mergeActiveStudent(studentsList, currentStudent) {
-  if (!currentStudent || !currentStudent.registrationNumber) {
-    return rankStudents(studentsList)
-  }
-
-  const regNo = currentStudent.registrationNumber.trim().toUpperCase()
-  const activeXp = Math.max(0, Number(currentStudent.xp) || 0)
   const map = new Map()
 
   studentsList.forEach((st) => {
     const r = (st.registrationNumber || st.regd_no || '').trim().toUpperCase()
-    if (r) {
+    const xp = typeof st.xp === 'number' ? st.xp : 0
+    const completedCount = Array.isArray(st.completedQuests) ? st.completedQuests.length : 0
+
+    // Only include if student has actually played
+    if (r && (xp > 0 || completedCount > 0)) {
       map.set(r, {
         ...st,
         registrationNumber: r,
@@ -126,25 +132,36 @@ function mergeActiveStudent(studentsList, currentStudent) {
     }
   })
 
-  const existing = map.get(regNo) || {}
-  map.set(regNo, {
-    ...existing,
-    ...currentStudent,
-    id: currentStudent.id || existing.id || regNo,
-    name: currentStudent.studentName || currentStudent.name || existing.name || 'SRKR Student',
-    studentName: currentStudent.studentName || currentStudent.name || existing.studentName || 'SRKR Student',
-    registrationNumber: regNo,
-    regd_no: regNo,
-    email: currentStudent.email || existing.email || '',
-    branch: normalizeDepartment(currentStudent.branch || existing.branch || 'CSE'),
-    department: normalizeDepartment(currentStudent.branch || existing.department || 'CSE'),
-    year: currentStudent.year || existing.year || '1st Year',
-    xp: activeXp,
-    score: activeXp,
-    completedQuests: Array.isArray(currentStudent.completedQuests) ? currentStudent.completedQuests : (existing.completedQuests || []),
-    badges: Array.isArray(currentStudent.badges) ? currentStudent.badges : (existing.badges || []),
-    isCurrentUser: true,
-  })
+  // If current student has actually played, merge their live real progress
+  if (currentStudent && currentStudent.registrationNumber) {
+    const regNo = currentStudent.registrationNumber.trim().toUpperCase()
+    const activeXp = Math.max(0, Number(currentStudent.xp) || 0)
+    const completedQuests = Array.isArray(currentStudent.completedQuests)
+      ? currentStudent.completedQuests
+      : []
+
+    if (activeXp > 0 || completedQuests.length > 0) {
+      const existing = map.get(regNo) || {}
+      map.set(regNo, {
+        ...existing,
+        ...currentStudent,
+        id: currentStudent.id || existing.id || regNo,
+        name: currentStudent.studentName || currentStudent.name || existing.name || 'SRKR Student',
+        studentName: currentStudent.studentName || currentStudent.name || existing.studentName || 'SRKR Student',
+        registrationNumber: regNo,
+        regd_no: regNo,
+        email: currentStudent.email || existing.email || '',
+        branch: normalizeDepartment(currentStudent.branch || existing.branch || 'CSE'),
+        department: normalizeDepartment(currentStudent.branch || existing.department || 'CSE'),
+        year: currentStudent.year || existing.year || '1st Year',
+        xp: activeXp,
+        score: activeXp,
+        completedQuests,
+        badges: Array.isArray(currentStudent.badges) ? currentStudent.badges : (existing.badges || []),
+        isCurrentUser: true,
+      })
+    }
+  }
 
   return rankStudents(Array.from(map.values()))
 }
@@ -157,7 +174,15 @@ export function rankStudents(studentsList) {
     return []
   }
 
-  const sorted = [...studentsList].sort((a, b) => {
+  // Filter ONLY students who have actually played (completedQuests > 0 OR XP > 0)
+  const playedStudents = studentsList.filter((s) => {
+    const xp = typeof s.xp === 'number' ? s.xp : 0
+    const completedCount = Array.isArray(s.completedQuests) ? s.completedQuests.length : 0
+    return xp > 0 || completedCount > 0
+  })
+
+  // Sort descending by XP, then alphabetical by name
+  const sorted = [...playedStudents].sort((a, b) => {
     const diff = (b.xp || 0) - (a.xp || 0)
     if (diff !== 0) return diff
     return (a.name || '').localeCompare(b.name || '')
@@ -183,22 +208,25 @@ export function getStudentRanks(currentStudent, studentsList = null) {
   const currentRegNo = (currentStudent?.registrationNumber || '').trim().toUpperCase()
   const studentDept = normalizeDepartment(currentStudent?.branch || currentStudent?.department || 'CSE')
   const studentYear = currentStudent?.year || '1st Year'
+  const activeXp = Math.max(0, Number(currentStudent?.xp) || 0)
+  const completedCount = Array.isArray(currentStudent?.completedQuests) ? currentStudent.completedQuests.length : 0
+  const hasPlayed = activeXp > 0 || completedCount > 0
 
   const rankedOverall = rankStudents(all)
   const overallItem = rankedOverall.find((s) => (s.registrationNumber || '').toUpperCase() === currentRegNo)
-  const overallRank = overallItem ? overallItem.rank : 1
+  const overallRank = overallItem ? overallItem.rank : (hasPlayed ? 1 : '—')
   const totalStudents = rankedOverall.length
 
   const deptList = all.filter((s) => normalizeDepartment(s.department || s.branch) === studentDept)
   const rankedDept = rankStudents(deptList)
   const deptItem = rankedDept.find((s) => (s.registrationNumber || '').toUpperCase() === currentRegNo)
-  const departmentRank = deptItem ? deptItem.rank : 1
+  const departmentRank = deptItem ? deptItem.rank : (hasPlayed ? 1 : '—')
   const totalDeptStudents = rankedDept.length
 
   const yearList = deptList.filter((s) => (s.year || '').trim().toLowerCase() === studentYear.trim().toLowerCase())
   const rankedYear = rankStudents(yearList)
   const yearItem = rankedYear.find((s) => (s.registrationNumber || '').toUpperCase() === currentRegNo)
-  const yearRank = yearItem ? yearItem.rank : 1
+  const yearRank = yearItem ? yearItem.rank : (hasPlayed ? 1 : '—')
   const totalYearStudents = rankedYear.length
 
   return {
@@ -208,6 +236,7 @@ export function getStudentRanks(currentStudent, studentsList = null) {
     totalDeptStudents,
     yearRank,
     totalYearStudents,
+    hasPlayed,
     department: studentDept,
     year: studentYear,
   }

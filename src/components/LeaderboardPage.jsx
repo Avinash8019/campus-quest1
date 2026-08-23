@@ -129,26 +129,32 @@ function LeaderboardPage({ student }) {
         <div className="my-rank-stats-grid">
           <div className="rank-stat-box">
             <span className="stat-pill-label">🏆 OVERALL RANK</span>
-            <strong className="stat-pill-value">#{myRanks.overallRank}</strong>
-            <small>out of {myRanks.totalStudents} students</small>
+            <strong className="stat-pill-value">
+              {myRanks.hasPlayed ? `#${myRanks.overallRank}` : 'Unranked'}
+            </strong>
+            <small>{myRanks.hasPlayed ? `out of ${myRanks.totalStudents} active players` : 'Complete a quest to rank!'}</small>
           </div>
 
           <div className="rank-stat-box">
             <span className="stat-pill-label">🏛️ DEPT RANK</span>
-            <strong className="stat-pill-value">#{myRanks.departmentRank}</strong>
+            <strong className="stat-pill-value">
+              {myRanks.hasPlayed ? `#${myRanks.departmentRank}` : 'Unranked'}
+            </strong>
             <small>{myRanks.department}</small>
           </div>
 
           <div className="rank-stat-box">
             <span className="stat-pill-label">🎓 YEAR RANK</span>
-            <strong className="stat-pill-value">#{myRanks.yearRank}</strong>
+            <strong className="stat-pill-value">
+              {myRanks.hasPlayed ? `#${myRanks.yearRank}` : 'Unranked'}
+            </strong>
             <small>{myRanks.year}</small>
           </div>
 
           <div className="rank-stat-box xp-box">
             <span className="stat-pill-label">⭐ TOTAL XP</span>
             <strong className="stat-pill-value gold">{studentXp} XP</strong>
-            <small>Live Verified XP</small>
+            <small>{myRanks.hasPlayed ? 'Live Verified XP' : 'No game activity yet'}</small>
           </div>
         </div>
       </section>
